@@ -11,7 +11,7 @@ export default class App {
     }
 
     public listen() {
-        const PORT: number = parseInt(process.env.PORT) || 8080;
+        const PORT: number = parseInt(process.env.PORT) || 1012;
 
         App.initDatabase().then(() => {
             console.log('Database initialized');

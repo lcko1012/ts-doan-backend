@@ -39,6 +39,9 @@ class User extends Model {
     })
     role: Role;
 
+    @Column(DataType.STRING)
+    registerToken: string | null;
+
     @HasOne(() => PasswordResetToken)
     passwordResetToken: PasswordResetToken;
     

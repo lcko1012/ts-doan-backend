@@ -1,5 +1,6 @@
 require('dotenv').config();
 import App from "app";
+import { GlobalErrorHandler } from "middlewares/GlobalErrorHandler";
 import "reflect-metadata"
 import { useContainer, useExpressServer } from "routing-controllers";
 import Container from "typedi";
@@ -15,7 +16,7 @@ useExpressServer(app.getServer(), {
     development: true,
     defaultErrorHandler: false,
     controllers: [__dirname + "/controllers/*.ts"],
-
+    middlewares: [GlobalErrorHandler]
 }) 
 
 app.listen();
