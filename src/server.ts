@@ -1,20 +1,21 @@
-import { createExpressServer } from "routing-controllers";
-import { HelloWorldController } from "./controllers/HelloWorldController";
+require('dotenv').config();
+import App from "app";
+import "reflect-metadata"
+import { useContainer, useExpressServer } from "routing-controllers";
+import Container from "typedi";
 
-const PORT = 8080;
 
-console.info(`Starting server on port ${PORT}`);
+useContainer(Container);
 
-const routes = [HelloWorldController];
+const app = new App();
+app.bootstrap();
 
-const app = createExpressServer(
-    {
-        controllers: [__dirname + "/controllers/*.ts"],
-        cors: {
-            origin: "*",
-            //origin: real path
-        }
-    }
-)
+useExpressServer(app.getServer(), {
+    routePrefix: '/api',
+    development: true,
+    defaultErrorHandler: false,
+    controllers: [__dirname + "/controllers/*.ts"],
 
-app.listen(PORT);
+}) 
+
+app.listen();

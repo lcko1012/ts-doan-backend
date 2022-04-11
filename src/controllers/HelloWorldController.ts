@@ -1,11 +1,12 @@
 import { Body, Controller, Get, HttpCode, JsonController, Param, Post, QueryParam, Req, Res } from "routing-controllers";
-import 'reflect-metadata';
+import { Service } from "typedi";
 
 class HelloWorldPost {
     message: string
 }
 
 @JsonController('/hello-world')
+@Service()
 export class HelloWorldController {
     @Get('/')
     index(@QueryParam('goodbye') goodbye: string) {
