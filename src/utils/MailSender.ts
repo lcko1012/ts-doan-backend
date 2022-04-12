@@ -54,6 +54,6 @@ export default class MailSender {
         </div>
         `
 
-        await this.sendMail(email, subject, html);
+        this.sendMail(email, subject, html);
     }
 }

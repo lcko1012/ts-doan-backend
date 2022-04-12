@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import crypto from "crypto";
 import RegisterDto from "../dto/RegisterDto";
 import UserRepository from "../repository/UserRepository";
@@ -6,15 +5,18 @@ import bcrypt from "bcrypt";
 import User from "../models/User";
 import MailSender from "../utils/MailSender";
 import { StatusCodes } from "http-status-codes";
-import { HttpError, UnauthorizedError } from "routing-controllers";
+import { HttpError, NotFoundError, UnauthorizedError } from "routing-controllers";
 import { Service } from "typedi";
+import JwtService from "./JwtService";
+import PasswordResetToken from "../models/PasswordResetToken";
 
 
 @Service()
 export default class AuthService {
     constructor(
         private userRepository: UserRepository,
-        private mailSender: MailSender
+        private mailSender: MailSender,
+        private jwtService: JwtService
     ){}
 
     public encryptPassword = async (password: string) => {
@@ -62,4 +64,26 @@ export default class AuthService {
         user.registerToken = null;
         await user.save();
     }
+    
+    public login = async (email: string, password: string) => {
+        const user = await this.userRepository.findByEmail(email);
+
+        if (!user) {
+            throw new UnauthorizedError("Invalid email or password");
+        }
+        
+        const matchedPassword = await bcrypt.compare(password, user.password);
+        if (!matchedPassword) {
+            throw new UnauthorizedError("Invalid email or password");
+        }
+
+        const payload = {email: user.email}
+
+        const accessToken = await this.jwtService.createAccessToken(payload);
+        const refreshToken = await this.jwtService.createRefreshToken(payload);
+
+        return {accessToken, refreshToken};
+    }
+
+
 }
