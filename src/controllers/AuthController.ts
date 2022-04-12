@@ -1,10 +1,11 @@
-import { BadRequestError, Body, BodyParam, Get, HttpCode, JsonController, Param, Post, Res } from "routing-controllers";
+import { BadRequestError, Body, BodyParam, Get, HttpCode, JsonController, Param, Post, Put, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import RegisterDto from "../dto/RegisterDto";
 import LoginDto from "../dto/LoginDto";
 import AuthService from "../services/AuthService";
+import PasswordDto from "dto/PasswordDto";
 
 
 @JsonController('/auth')
@@ -58,4 +59,35 @@ export default class AuthController {
                     }).json({accessToken})
     }
 
+    @Post('/forgot_password')
+    async forgotPassword(@BodyParam('email') email: string){
+        if (!email) {
+            throw new BadRequestError('Email is required');
+        }
+
+        await this.authService.createPasswordResetToken(email);
+
+        return {
+            message: "Please check your email to reset password"
+        }
+    }
+
+    @Get('/validate_password_reset_token/:token')
+    async validatePasswordResetToken(@Param('token') token: string){
+        await this.authService.validatePasswordResetToken(token);
+    }
+
+    @Put('/reset_password/:token')
+    async resetPassword(@Param('token') token: string, 
+                        @Body() newPassword: PasswordDto) {
+        if (newPassword.password !== newPassword.password_confirmation) {
+            throw new BadRequestError('Passwords do not match');
+        }
+
+        await this.authService.resetPassword(token, newPassword.password);
+
+        return {
+            message: "Password reset successfully"
+        }
+    }
 }

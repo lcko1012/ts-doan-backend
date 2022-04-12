@@ -85,5 +85,72 @@ export default class AuthService {
         return {accessToken, refreshToken};
     }
 
+    public createPasswordResetToken = async (email: string) => {
+        const user = await this.userRepository.findByEmail(email);
 
+        if (!user) {
+            throw new NotFoundError("Email not found");
+        }
+
+        if (!user.activated) {
+            throw new HttpError(StatusCodes.CONFLICT, "Email is not activated");
+        }
+
+        const newToken = crypto.randomBytes(16).toString("hex");
+        const expireDate = new Date(Date.now() + 60000*30); //30 minutes
+        
+        let passwordResetToken = await PasswordResetToken.findOne({
+            where: {userId: user.id}
+        })
+
+        if (passwordResetToken) {
+            passwordResetToken.expireDate = expireDate;
+        }
+        else {
+            passwordResetToken = PasswordResetToken.build({
+                userId: user.id,
+                token: newToken,
+                expireDate
+            })
+        }
+
+        passwordResetToken = await passwordResetToken.save();
+
+        let passwordResetLink = `${process.env.CLIENT_URL}/reset_password/${passwordResetToken.token}`;
+        
+        this.mailSender.sendPasswordResetLink(email, passwordResetLink);
+    }
+
+    public validatePasswordResetToken = async (token: string) => {
+        const passwordResetToken = await PasswordResetToken.findOne({
+            where: {token}
+        })
+
+        if (!passwordResetToken) {
+            throw new UnauthorizedError("Invalid token");
+        }
+
+        if (passwordResetToken.expireDate < new Date()) {
+            throw new UnauthorizedError("Token expired");
+        }
+    }
+
+    public resetPassword = async (token: string, newPasswrd: string) => {
+        await this.validatePasswordResetToken(token);
+
+        const passwordResetToken = await PasswordResetToken.findOne({
+            where: {token},
+            include: [User]
+        });
+
+        if (passwordResetToken) {
+            const user = passwordResetToken.user;
+            user.password = await this.encryptPassword(newPasswrd);
+            await user.save();
+            await passwordResetToken.destroy();
+        }
+        else {
+            throw new UnauthorizedError("Invalid token");
+        }
+    }
 }
