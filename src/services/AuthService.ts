@@ -77,7 +77,7 @@ export default class AuthService {
             throw new UnauthorizedError("Invalid email or password");
         }
 
-        const payload = {email: user.email}
+        const payload = {email: user.email, id: user.id, role: user.role};
 
         const accessToken = await this.jwtService.createAccessToken(payload);
         const refreshToken = await this.jwtService.createRefreshToken(payload);

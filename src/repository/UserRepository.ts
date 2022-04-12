@@ -9,6 +9,12 @@ export default class UserRepository {
         })
     }
 
+    public async findByEmailAndActivated(email: string): Promise<User | null> { 
+        return await User.findOne({
+            where: {email: email, activated: true}
+        })
+    }
+
     public async findByRegisterToken(token: string): Promise<User | null> {
         return await User.findOne({
             where: {
