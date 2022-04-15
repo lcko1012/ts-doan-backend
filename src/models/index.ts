@@ -1,6 +1,7 @@
 import {Sequelize} from 'sequelize-typescript';
 import PasswordResetToken from './PasswordResetToken';
 import User from './User';
+import Word from './Word';
 
 const sequelize = new Sequelize({
     database: process.env.DB_NAME,
@@ -11,14 +12,17 @@ const sequelize = new Sequelize({
     pool: {
         max: 5,
         min: 0,
-        acquire: 3000,
+        acquire: 20000,
         idle: 10000
     },
+    dialectOptions: {
+        connectTimeout: process.env.NODE_ENV == "production" ? 5000 : 15000
+    }
 })
 
 
 sequelize.addModels([
-    User, PasswordResetToken
+    User, PasswordResetToken, Word
 ]);
 
 export default sequelize;
