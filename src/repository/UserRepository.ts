@@ -11,6 +11,7 @@ export default class UserRepository {
 
     public async findByEmailAndActivated(email: string): Promise<User | null> { 
         return await User.findOne({
+            raw: true,
             where: {email: email, activated: true}
         })
     }

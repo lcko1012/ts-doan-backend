@@ -57,7 +57,7 @@ export default class AuthService {
         const user = await this.userRepository.findByRegisterToken(token);
 
         if(!user) {
-            throw new UnauthorizedError("Invalid token");
+            throw new UnauthorizedError("Mã kích hoạt không đúng");
         }
 
         user.activated = true;
@@ -89,11 +89,11 @@ export default class AuthService {
         const user = await this.userRepository.findByEmail(email);
 
         if (!user) {
-            throw new NotFoundError("Email not found");
+            throw new NotFoundError("Email không tồn tại");
         }
 
         if (!user.activated) {
-            throw new HttpError(StatusCodes.CONFLICT, "Email is not activated");
+            throw new HttpError(StatusCodes.CONFLICT, "Email này chưa kích hoạt");
         }
 
         const newToken = crypto.randomBytes(16).toString("hex");
@@ -127,11 +127,12 @@ export default class AuthService {
         })
 
         if (!passwordResetToken) {
-            throw new UnauthorizedError("Invalid token");
+            throw new UnauthorizedError("Mã không đúng, vui lòng thử lại");
         }
 
         if (passwordResetToken.expireDate < new Date()) {
-            throw new UnauthorizedError("Token expired");
+            await passwordResetToken.destroy();
+            throw new UnauthorizedError("Đã hết hiệu lực, vui lòng gửi lại yêu cầu mới");
         }
     }
 
@@ -150,7 +151,8 @@ export default class AuthService {
             await passwordResetToken.destroy();
         }
         else {
-            throw new UnauthorizedError("Invalid token");
+            await passwordResetToken.destroy();
+            throw new UnauthorizedError("Mã đã hết hiệu lực, vui lòng gửi lại yêu cầu mới");
         }
     }
 }

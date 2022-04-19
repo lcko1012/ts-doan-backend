@@ -26,13 +26,13 @@ export default class AuthController {
     @HttpCode(StatusCodes.ACCEPTED)
     async register(@Body() userData: RegisterDto) {
         if (userData.password !== userData.password_confirmation) {
-            throw new BadRequestError('Passwords do not match');
+            throw new BadRequestError('Mật khẩu không khớp');
         }
 
         await this.authService.register(userData);
 
         return {
-            message: "Please check your email to activate your account"
+            message: "Kiểm tra email để kích hoạt tài khoản"
         }
     }
 
@@ -42,7 +42,7 @@ export default class AuthController {
         await this.authService.activate(token);
 
         return {
-            message: "Account activated",
+            message: "Kích hoạt tài khoản thành công",
         }
     }  
     
@@ -62,32 +62,42 @@ export default class AuthController {
     @Post('/forgot_password')
     async forgotPassword(@BodyParam('email') email: string){
         if (!email) {
-            throw new BadRequestError('Email is required');
+            throw new BadRequestError('Email không được để trống');
         }
 
         await this.authService.createPasswordResetToken(email);
 
         return {
-            message: "Please check your email to reset password"
+            message: "Hãy kiểm tra email của bạn để lấy lại mật khẩu"
         }
     }
 
     @Get('/validate_password_reset_token/:token')
     async validatePasswordResetToken(@Param('token') token: string){
         await this.authService.validatePasswordResetToken(token);
+        
+        return {
+            message: "Xác thực mã thành công"
+        }
     }
 
     @Put('/reset_password/:token')
     async resetPassword(@Param('token') token: string, 
                         @Body() newPassword: PasswordDto) {
         if (newPassword.password !== newPassword.password_confirmation) {
-            throw new BadRequestError('Passwords do not match');
+            throw new BadRequestError('Mật khẩu không khớp');
         }
 
         await this.authService.resetPassword(token, newPassword.password);
 
         return {
-            message: "Password reset successfully"
+            message: "Đặt lại mật khẩu thành công"
         }
+    }
+
+    @Get('/logout')
+    async logout(@Res() res: Response) {
+        res.clearCookie('refreshToken', {path: '/api/auth/refresh_token'});
+        return res.send({message: "Đăng xuất thành công"});
     }
 }

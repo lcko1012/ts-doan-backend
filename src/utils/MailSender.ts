@@ -59,16 +59,17 @@ export default class MailSender {
 
     
     public sendPasswordResetLink = async (email: string, resetLink: string) => {
-        const subject = "Reset Password";
+        const subject = "Lấy lại mật khẩu";
         const html = `
         <div style="max-width: 700px; margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
-        <h2 style="text-align: center; text-transform: uppercase;color: teal;">Hi Guys</h2>
-        <p>Just click the button below to reset password.</p>
+        <h2 style="text-align: center; text-transform: uppercase;color: teal;">Chào bạn</h2>
+        <p>Nhấn vào nút bên dưới để lấy lại mật khẩu</p>
         <a href=${resetLink} style="background: crimson; text-decoration: none; color: white; padding: 10px 20px; margin: 10px 0; display: inline-block;">
-            Reset Password
+            Lấy lại mật khẩu
         </a>
-        <p>If the button doesn't work for any reason, you can also click on the resetLink below:</p>
+        <p>Nếu nút bấm không hoạt động, bạn có thể nhấn vào đường dẫn bên dưới</p>
         <div>${resetLink}</div>
+        <p style="color: red;">Lưu ý: Đường dẫn có hiệu lực trong vòng 30 phút, nếu đã hết hiếu lực, vui lòng gửi lại mail mới</p>
         </div>
         `
         this.sendMail(email, subject, html);

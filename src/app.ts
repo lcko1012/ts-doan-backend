@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import sequelize from 'models';
+import cors from 'cors'
 
 export default class App {
     private readonly app: express.Application;
@@ -23,6 +24,7 @@ export default class App {
     }
 
     public bootstrap() {
+        this.app.use(cors({origin: "*"}))
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(cookieParser());
