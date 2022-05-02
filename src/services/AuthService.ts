@@ -59,7 +59,7 @@ export default class AuthService {
         if(!user) {
             throw new UnauthorizedError("Mã kích hoạt không đúng");
         }
-
+        console.log(user)
         user.activated = true;
         user.registerToken = null;
         await user.save();

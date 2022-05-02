@@ -1,125 +1,148 @@
 import { Service } from "typedi";
 import fs from "fs";
 import Word from "models/Word";
+import WordRepository from "../repository/WordRepository";
+import PageRequest from "dto/PageDto";
+import { UpdateWordDto, MeaningType, ExampleRequest, ExampleClass } from "../dto/WordDto";
+import { BadRequestError, NotFoundError } from "routing-controllers";
+import sequelize from "../models";
+import { Model, Op } from "sequelize";
+import Meaning from "models/Meaning";
+import Definition from "models/Definition";
+import Extra from "models/Extra";
+import Example from "models/Example";
 
-
-const fileName = "dictionary/anhviet109K.txt";
 
 @Service()
 export default class WordService {
     constructor(
-        // private wordRepository: WordRepository,
+        private wordRepository: WordRepository,
     ) { }
 
-    public async loadDictionary() {
-        const data = fs.readFileSync(fileName, 'utf8').toString().replace(/\r\n/g, '\n').split('\n');
-        let database = []
-
-        let word = {
-            word: '',
-            phonetic: "",
-            meaning: "",
-            audios: ""
-        }
-
-        const promises = data.map((value, index) => {
-            let line = data[index];
-
-            if (line[0] === "@") {
-                let foneticIndexStart = -1;
-                let foneticIndexEnd = -1;
-                for (var char of line) {
-                    if (char === "/") {
-                        foneticIndexStart = line.indexOf("/");
-                        break;
-                    }
-                }
-
-                for (var i = foneticIndexStart + 1; i < line.length; i++) {
-                    if (line[i] === "/") {
-                        foneticIndexEnd = i;
-                        break;
-                    }
-                }
-
-                word.word = line.split(" ")[0].substring(1);
-
-                if (foneticIndexStart !== -1 && foneticIndexEnd !== -1) {
-                    word.word = line.substring(1, foneticIndexStart - 1);
-                    word.phonetic = line.substring(foneticIndexStart + 1, foneticIndexEnd);
-                }
-
-                // console.log(word);
+    public async createDictionary() {
+        fs.readFile(__dirname + '../../dictionary/dict_0.json', 'utf-8', (err, data) => {
+            if (err) {
+                console.log(err)
+                throw new BadRequestError("Đã có lỗi xảy ra")
             }
-            else if (line[0] === "*" || line[0] === "-" || line[0] === "=") {
-                word.meaning = word.meaning.concat(line);
-                word.meaning = word.meaning.concat("<br>");
-            }
+            else {
+                const databases = JSON.parse(data)
 
-            if (index > data.length - 2) {
-                console.log("noting")
-            }
-            else if (data[index + 1] == "" || (data[index + 1] !== undefined && data[index + 1][0] === "@")) {
-                if (word.word) {
-                    database.push(word);
-                    word = {
-                        word: '',
-                        phonetic: "",
-                        meaning: "",
-                        audios: ""
-                    }
-                }
+                const promises = []
+
+                sequelize.transaction(transaction => {
+                    databases.map(item => {
+                        // var newPromise = Word.findOrCreate({
+                        //     where: {vocab: item.vocab},
+                        //     defaults: {
+                        //         phonetic: item.phonetic,
+                        //     },
+                        //     transaction: transaction                            
+                        // })
+                        // console.log(item.meaning)
+
+                        //change mean of extras of meaning to string
+                        item.meaning.map(meaning => {
+                            meaning.extras.map(extra => {
+                                extra.mean = JSON.stringify(extra.mean)
+                            })
+                        })
+
+                        var newPromise = Word.findOrCreate({
+                            where: {vocab: item.vocab},
+                            defaults: {
+                                phonetic: item.phonetic,
+                                meanings: item.meaning,
+                            },
+                        
+                            transaction: transaction,
+                            include: [
+                                {
+                                    model: Meaning,
+                                    include: [
+                                        {
+                                            model: Definition,
+                                            include: [
+                                                {
+                                                    model: Example
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            model: Extra
+                                        },
+                                    ]
+                                }
+                            ],
+
+                        })   
+                        promises.push(newPromise)
+                    })
+                    return Promise.all(promises).then(() => {
+                        console.log("done")
+                    }).catch(err => {
+                        console.log(err)
+                        throw new BadRequestError("Đã có lỗi xảy ra")
+                    })
+                })
             }
         })
 
-        await Promise.all(promises)
-        return database;
     }
 
-    // public async createDictionary() {
-    //     const database = await this.loadDictionary();
-    //     console.log(database)
-    //     console.log("done")
-    //     const newArr1 = database.slice(0, 1000);
-    //     const newArr2 = database.slice(1000, 2000);
-    //     const newArr3 = database.slice(2000, 3000);
-    //     const newArr4 = database.slice(3000, 4000);
-    //     const newArr5 = database.slice(4000, 5000);
-    //     const newArr6 = database.slice(5000, 6000);
-    //     const newArr7 = database.slice(6000, 7000);
-    //     const newArr8 = database.slice(7000, 8000);
-    //     const newArr9 = database.slice(8000, 9000);
-    //     const newArr10 = database.slice(9000, 10000);
-    //     const newArr11 = database.slice(10000, 11000);
-    //     const newArr12 = database.slice(11000, 12000);
-    //     const newArr13 = database.slice(12000, 22000);
-    //     const newArr14 = database.slice(22000, 32000);
-    //     const newArr15 = database.slice(32000, 42000);
-    //     const newArr16 = database.slice(42000, 52000);
-    //     const newArr17 = database.slice(52000, 62000);
-    //     const newArr18 = database.slice(62000, 72000);
-    //     const newArr19 = database.slice(72000, 82000);
-    //     const newArr20 = database.slice(82000, 92000);
-    //     const newArr21 = database.slice(92000, 100000);
-    //     const newArr22 = database.slice(100000, database.length);
+    public async searchWord(word: string) {
+        var list = await this.wordRepository.searchWord(word);
+        return list
+    }
 
-    //     for (let i = 1; i < 23; i++) {
-    //         const arrName = `newArr${i}`;
-    //         const arr = eval(arrName);
-    //         Word.bulkCreate(arr, {validate: true}).then(() => {
-    //             console.log("Create dictionary successfully");
-    //         }).catch(err => {
-    //             console.log(err);
-    //         })
-    //     }
-       
-    // }
+    public async getAllWords(pageRequest: PageRequest) {
+        const { page, size, keyword, phonetic, meaning } = pageRequest;
 
-    // public async getWordByName(name: string) {
-    //     const word = await this.wordRepository.findByName(name);
+        var keywordCondition = keyword ? { vocab: { [Op.like]: `${keyword}%` } } : {};
+        var phoneticCondition = phonetic ? { phonetic: { [Op.like]: `%${phonetic}%` } } : {};
+        var meaningCondition = meaning ? { mean: { [Op.like]: `%${meaning}%` } } : {};
 
-    //     if (!word) throw new NotFoundError("Word not found");
+        const result = await this.wordRepository.getAllWords(page, size,
+            keywordCondition, phoneticCondition, meaningCondition
+        );
 
-    //     return word;
-    // }
+        const list = result.rows
+        // this.handleMeaning(list)
+
+        return {
+            list,
+            count: result.count
+        }
+    }
+
+    public async getWordByVocab(vocab: string) {
+        var result = await this.wordRepository.getByVocab(vocab);
+        if (!result) throw new NotFoundError("Từ vựng không tồn tại");
+        return result
+    }
+
+    public async getById(id: number) {
+        const word = await this.wordRepository.findById(id);
+        if (!word) throw new NotFoundError("Word not found");
+
+        return word;
+    }
+
+    public async updateWord(id: number, newWord: UpdateWordDto) {
+        const word = await this.getById(id)
+
+        word.vocab = newWord.vocab;
+        word.phonetic = newWord.phonetic;
+        // word.meaning = newWord.meaning;
+        word.audios = newWord.audios;
+
+        const editedWord = (await word.save()).get({plain: true})
+        editedWord.meaning = editedWord.meaning ? JSON.parse(editedWord.meaning) : editedWord.meaning;
+        return editedWord;
+    }
+
+    public async deleteWord(id: number) {
+        const word = await this.getById(id)
+        await word.destroy();
+    }
 }
