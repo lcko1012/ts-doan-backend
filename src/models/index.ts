@@ -1,5 +1,13 @@
 import {Sequelize} from 'sequelize-typescript';
+import Course from './Course';
+import Definition from './Definition';
+import Example from './Example';
+import Extra from './Extra';
+import Folder from './Folder';
+import Lesson from './Lesson';
+import Meaning from './Meaning';
 import PasswordResetToken from './PasswordResetToken';
+import Topic from './Topic';
 import User from './User';
 import Word from './Word';
 
@@ -22,7 +30,8 @@ const sequelize = new Sequelize({
 
 
 sequelize.addModels([
-    User, PasswordResetToken, Word
+    User, PasswordResetToken, Word, Meaning, Definition, Extra, Example,
+    Folder, Course, Lesson, Topic
 ]);
 
 export default sequelize;

@@ -1,4 +1,5 @@
-import { AllowNull, Column, DataType, HasOne, Index, Model, Table } from "sequelize-typescript";
+import { AllowNull, Column, DataType, HasMany, HasOne, Index, Model, Table } from "sequelize-typescript";
+import Folder from "./Folder";
 import PasswordResetToken from "./PasswordResetToken";
 import Role from "./Role";
 
@@ -45,6 +46,8 @@ class User extends Model {
     @HasOne(() => PasswordResetToken)
     passwordResetToken: PasswordResetToken;
     
+    @HasMany(() => Folder)
+    folders?: Folder[];
 }
 
 export default User;
