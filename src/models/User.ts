@@ -1,7 +1,11 @@
-import { AllowNull, Column, DataType, HasMany, HasOne, Index, Model, Table } from "sequelize-typescript";
+import { AllowNull, BelongsToMany, Column, DataType, HasMany, HasOne, Index, Model, Table } from "sequelize-typescript";
+import Course from "./Course";
 import Folder from "./Folder";
 import PasswordResetToken from "./PasswordResetToken";
 import Role from "./Role";
+import Test from "./Test";
+import UserCourse from "./UserCourse";
+import UserTest from "./UserTest";
 
 @Table
 class User extends Model {
@@ -48,6 +52,12 @@ class User extends Model {
     
     @HasMany(() => Folder)
     folders?: Folder[];
+
+    @BelongsToMany(() => Course, () => UserCourse)
+    courses?: Course[];
+
+    @BelongsToMany(() => Test, () => UserTest)
+    tests?: Test[];
 }
 
 export default User;

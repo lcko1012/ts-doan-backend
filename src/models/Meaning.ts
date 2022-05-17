@@ -1,7 +1,6 @@
 import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, HasMany, Scopes } from "sequelize-typescript";
-import Definition from './Definition'
-import Extra from './Extra'
-import Word from "./Word";
+import Example from "./Example";
+import Kind from './Kind'
 
 @Scopes(() => ({
     do_not_get_time: {
@@ -19,20 +18,17 @@ class Meaning extends Model {
     id: number;
 
     @Column
-    kind: string
+    name: string
+ 
+    @HasMany(() => Example)
+    examples: Example[];
 
-    @HasMany(() => Definition)
-    definitions: Definition[];
-
-    @HasMany(() => Extra)
-    extras: Extra[];
-
-    @ForeignKey(() => Word)
+    @ForeignKey(() => Kind)
     @Column
-    wordId: number;
+    kindId: number;
 
-    @BelongsTo(() => Word)
-    word: Word;
+    @BelongsTo(() => Kind)
+    kind: Kind;
 }
 
 export default Meaning;

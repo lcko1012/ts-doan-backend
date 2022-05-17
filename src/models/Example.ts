@@ -1,6 +1,5 @@
-import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo } from "sequelize-typescript";
-import Definition from "./Definition";
-import User from "./User";
+import { Column, HasOne, Model, Table, ForeignKey, BelongsTo, DataType } from "sequelize-typescript";
+import Meaning from "./Meaning";
 
 @Table
 class Example extends Model {
@@ -10,18 +9,22 @@ class Example extends Model {
     })
     id: number;
     
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     sentence: string
 
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     mean: string
 
-    @ForeignKey(() => Definition)
+    @ForeignKey(() => Meaning)
     @Column
-    definitionId: number;
+    meaningId: number;
 
-    @BelongsTo(() => Definition)
-    definition: Definition;
+    @BelongsTo(() => Meaning)
+    meanign: Meaning;
 }
 
 export default Example;

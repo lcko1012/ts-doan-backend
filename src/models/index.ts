@@ -1,15 +1,21 @@
 import {Sequelize} from 'sequelize-typescript';
 import Course from './Course';
-import Definition from './Definition';
+import Meaning from './Meaning';
 import Example from './Example';
-import Extra from './Extra';
+import Idiom from './Idiom';
 import Folder from './Folder';
 import Lesson from './Lesson';
-import Meaning from './Meaning';
+import Kind from './Kind';
 import PasswordResetToken from './PasswordResetToken';
-import Topic from './Topic';
+import Test from './Test';
 import User from './User';
 import Word from './Word';
+import UserCourse from './UserCourse';
+import UserTest from './UserTest';
+import Video from './Video';
+import Question from './Question';
+import Answer from './Answer';
+import Category from './Category';
 
 const sequelize = new Sequelize({
     database: process.env.DB_NAME,
@@ -30,8 +36,9 @@ const sequelize = new Sequelize({
 
 
 sequelize.addModels([
-    User, PasswordResetToken, Word, Meaning, Definition, Extra, Example,
-    Folder, Course, Lesson, Topic
+    User, PasswordResetToken, Word, Kind, Meaning, Idiom, Example,
+    Folder, Course, Lesson, Test, UserCourse, UserTest, Video,
+    Question, Answer, Category
 ]);
 
 export default sequelize;

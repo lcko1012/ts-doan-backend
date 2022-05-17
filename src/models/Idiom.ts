@@ -1,8 +1,8 @@
 import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo } from "sequelize-typescript";
-import Meaning from "./Meaning";
+import Kind from "./Kind";
 
 @Table
-class Extra extends Model {
+class Idiom extends Model {
     @Column({
         primaryKey: true,
         autoIncrement: true
@@ -15,12 +15,12 @@ class Extra extends Model {
     @Column
     mean: string
 
-    @ForeignKey(() => Meaning)
+    @ForeignKey(() => Kind)
     @Column
-    meaningId: number;
+    kindId: number;
 
-    @BelongsTo(() => Meaning)
-    meaning: Meaning;
+    @BelongsTo(() => Kind)
+    kind: Kind;
 }
 
-export default Extra;
+export default Idiom;

@@ -1,10 +1,12 @@
-import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
+import { Column, DataType, Model, Table, ForeignKey, BelongsTo, HasMany, CreatedAt, UpdatedAt, BelongsToMany, Index } from "sequelize-typescript";
+import Category from "./Category";
 import Lesson from "./Lesson";
-import Topic from "./Topic";
 import User from "./User";
+import UserCourse from "./UserCourse";
 
 @Table
 class Course extends Model {
+    @Index
     @Column
     name: string
 
@@ -12,25 +14,57 @@ class Course extends Model {
     description: string
 
     @Column
-    imageUrl: string
+    imageLink: string
 
     @Column
     slug: string
+
+    @Index
+    @Column({
+        type: DataType.STRING(10),
+    })
+    code: string;
+
+    @Column({
+        type: DataType.DOUBLE(10, 2)
+    })
+    rating: number;
 
     @Column({
         defaultValue: true
     })
     isPublic: boolean
 
-    @ForeignKey(() => Topic)
-    @Column
-    topicId: number;
+    @BelongsTo(() => Category, {
+        foreignKey: {
+            allowNull: true
+        }
+    })
+    category?: Category
 
-    @BelongsTo(() => Topic)
-    topic: Topic;
+    @ForeignKey(() => Category)
+    @Column
+    categoryId?: number
 
     @HasMany(() => Lesson)
     lessons: Lesson[];
+
+    @BelongsToMany(() => User, () => UserCourse)
+    users: User[];
+    
+    @CreatedAt
+    @Column({
+        allowNull: true
+    })
+    createdAt: Date;
+    
+    @UpdatedAt
+    @Column({
+        allowNull: true
+    })
+    updatedAt: Date;
+
+    lessonCount: number;
 }
 
 export default Course;

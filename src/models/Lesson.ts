@@ -1,20 +1,30 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Index, Model, Table } from "sequelize-typescript";
 import Course from "./Course";
+import Video from "./Video";
 import Word from "./Word";
 
 @Table
 export default class Lesson extends Model {
+    @Index
     @Column
     name: string;
 
-    @Column(DataType.TEXT)
-    description: string;
-
     @Column
     slug: string;
-
+    
     @Column
-    imageUrl: string;
+    lessonNo: number;
+
+    @Column({
+        type: DataType.TEXT
+    })
+    content: string;
+    
+    @HasMany(() => Word)
+    words: Word[];
+
+    @HasMany(() => Video)
+    videos: Video[];
 
     @ForeignKey(() => Course)
     @Column
@@ -22,7 +32,4 @@ export default class Lesson extends Model {
 
     @BelongsTo(() => Course)
     course: Course;
-
-    @HasMany(() => Word)
-    words: Word[];
 }

@@ -1,8 +1,8 @@
-import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, HasMany, Index, Model, Scopes, Sequelize, Table } from "sequelize-typescript";
-import Definition from "./Definition";
+import { BelongsTo, BelongsToMany, Column, CreatedAt, DataType, ForeignKey, HasMany, Index, Model, Scopes, Sequelize, Table, UpdatedAt } from "sequelize-typescript";
 import Folder from "./Folder";
 import Lesson from "./Lesson";
-import Meaning from "./Meaning";
+import Kind from "./Kind";
+import WordKind from "./WordKind";
 
 @Scopes(() => ({
     is_dict: {
@@ -36,14 +36,11 @@ class Word extends Model {
     phonetic: string ;
 
     @Column
-    imageUrl: string;
+    imageLink: string;
 
     @Column
     audios: string;
 
-    @HasMany(() => Meaning)
-    meanings: Meaning[];
-    
     @ForeignKey(() => Folder)
     @Column
     folderId?: number;
@@ -64,6 +61,11 @@ class Word extends Model {
             allowNull: true
         }
     })
+
+
+    @BelongsToMany(() => Kind, () => WordKind)
+    kinds: Kind[];
+
     lesson?: Lesson;
 
     @CreatedAt
@@ -72,7 +74,7 @@ class Word extends Model {
     })
     createdAt: Date;
 
-    @CreatedAt
+    @UpdatedAt
     @Column({
         allowNull: true
     })
