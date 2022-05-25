@@ -24,7 +24,7 @@ export default class AuthService {
     }
 
     public register = async (userData: RegisterDto) => {
-        const {name, email, password} = userData;
+        const {name, email, password, role} = userData;
 
         const user = await this.userRepository.findByEmail(email);
         if (!user) {
@@ -37,10 +37,10 @@ export default class AuthService {
                 name,
                 password: hashedPassword,
                 registerToken,
+                role
             });
 
             const activationLink = `${process.env.CLIENT_URL}/activate/${registerToken}`;
-            console.log(activationLink)
             this.mailSender.sendActivationLink(email, activationLink);
         }
         else if (user.activated) {
