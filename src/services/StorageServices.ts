@@ -21,8 +21,8 @@ export default class StorageService {
 
     constructor() {}
 
-    public async uploadFile(filePath: string) {
-        const key = path.basename(filePath);
+    public async uploadFile(email: string, filePath: string) {
+        const key = `${email}/${path.basename(filePath)}`;
 
         const buffer = readFileSync(filePath);
 

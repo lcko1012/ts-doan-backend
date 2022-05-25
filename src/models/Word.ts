@@ -41,6 +41,12 @@ class Word extends Model {
     @Column
     audios: string;
 
+    @BelongsToMany(() => Kind, () => WordKind, "wordId", "kindId")
+    kinds: Kind[];
+
+    @HasMany(() => WordKind)
+    wordKinds: WordKind[];
+
     @ForeignKey(() => Folder)
     @Column
     folderId?: number;
@@ -61,11 +67,6 @@ class Word extends Model {
             allowNull: true
         }
     })
-
-
-    @BelongsToMany(() => Kind, () => WordKind)
-    kinds: Kind[];
-
     lesson?: Lesson;
 
     @CreatedAt

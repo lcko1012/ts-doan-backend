@@ -19,6 +19,16 @@ export default class PageRequest {
     phonetic: string;
 
     @IsOptional()
+    kindId: number;    
+
+    @IsOptional()
     // @IsNotEmpty({message: "Nghĩa không được để trống"})
     meaning: string;
+
+    @IsOptional()
+    courseName: string;
+
+    @IsOptional()
+    topicId: number;
+
 }

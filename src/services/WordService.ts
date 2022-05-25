@@ -3,15 +3,16 @@ import fs from "fs";
 import Word from "models/Word";
 import WordRepository from "../repository/WordRepository";
 import PageRequest from "dto/PageDto";
-import { UpdateWordDto, MeaningType, ExampleRequest, ExampleClass } from "../dto/WordDto";
+import { CreateWordDto, UpdateWordDto,  } from "../dto/WordDto";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import sequelize from "../models";
 import { Model, Op } from "sequelize";
-import Meaning from "models/Meaning";
-import Definition from "models/Definition";
-import Extra from "models/Extra";
 import Example from "models/Example";
-
+import Kind from "models/Kind";
+import Meaning from "models/Meaning";
+import Idiom from "models/Idiom";
+import { KindType } from "interfaces/Word";
+import WordKind from "models/WordKind";
 
 @Service()
 export default class WordService {
@@ -20,74 +21,59 @@ export default class WordService {
     ) { }
 
     public async createDictionary() {
-        fs.readFile(__dirname + '../../dictionary/dict_0.json', 'utf-8', (err, data) => {
+        fs.readFile(__dirname + '../../dictionary/dict_0.json', 'utf-8', async (err, data) => {
             if (err) {
                 console.log(err)
                 throw new BadRequestError("Đã có lỗi xảy ra")
             }
             else {
                 const databases = JSON.parse(data)
-
-                const promises = []
-
-                sequelize.transaction(transaction => {
-                    databases.map(item => {
-                        // var newPromise = Word.findOrCreate({
-                        //     where: {vocab: item.vocab},
-                        //     defaults: {
-                        //         phonetic: item.phonetic,
-                        //     },
-                        //     transaction: transaction                            
-                        // })
-                        // console.log(item.meaning)
-
-                        //change mean of extras of meaning to string
-                        item.meaning.map(meaning => {
-                            meaning.extras.map(extra => {
-                                extra.mean = JSON.stringify(extra.mean)
+                try {
+                    await sequelize.transaction(async transaction => {
+                        for (const item of databases) {
+                            const word = await Word.findOrCreate({
+                                where: {
+                                    vocab: item.vocab,
+                                },
+                                defaults: {phonetic: item.phonetic},
+                                transaction
                             })
-                        })
 
-                        var newPromise = Word.findOrCreate({
-                            where: {vocab: item.vocab},
-                            defaults: {
-                                phonetic: item.phonetic,
-                                meanings: item.meaning,
-                            },
-                        
-                            transaction: transaction,
-                            include: [
-                                {
-                                    model: Meaning,
-                                    include: [
-                                        {
-                                            model: Definition,
-                                            include: [
-                                                {
-                                                    model: Example
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            model: Extra
-                                        },
-                                    ]
-                                }
-                            ],
+                            for (const kind of item.kinds) {
+                                kind.idioms.map(idiom => {
+                                    idiom.mean = JSON.stringify(idiom.mean)
+                                })
 
-                        })   
-                        promises.push(newPromise)
+                                const existedKind = await Kind.findOrCreate({
+                                    where: {name: kind.name},
+                                    defaults: {name: kind.name},
+                                })
+
+                                await WordKind.create({
+                                    wordId: word[0].id,
+                                    kindId: existedKind[0].id,
+                                    meanings: kind.meanings,
+                                    idioms: kind.idioms,
+                                    
+                                }, {
+                                    include: [{
+                                        model: Meaning,
+                                        include: [{model: Example}]
+                                    }, {
+                                        model: Idiom,
+                                    }],
+                                    transaction
+                                })
+                            }
+                        }
                     })
-                    return Promise.all(promises).then(() => {
-                        console.log("done")
-                    }).catch(err => {
-                        console.log(err)
-                        throw new BadRequestError("Đã có lỗi xảy ra")
-                    })
-                })
+                   
+                }catch(err) {
+                    // if (transaction) await transaction.rollback()
+                    throw new BadRequestError("Đã có lỗi xảy ra")
+                }
             }
         })
-
     }
 
     public async searchWord(word: string) {
@@ -100,14 +86,13 @@ export default class WordService {
 
         var keywordCondition = keyword ? { vocab: { [Op.like]: `${keyword}%` } } : {};
         var phoneticCondition = phonetic ? { phonetic: { [Op.like]: `%${phonetic}%` } } : {};
-        var meaningCondition = meaning ? { mean: { [Op.like]: `%${meaning}%` } } : {};
+        var meaningCondition = meaning ? { name: { [Op.like]: `%${meaning}%` } } : {};
 
         const result = await this.wordRepository.getAllWords(page, size,
             keywordCondition, phoneticCondition, meaningCondition
         );
 
         const list = result.rows
-        // this.handleMeaning(list)
 
         return {
             list,
@@ -123,22 +108,59 @@ export default class WordService {
 
     public async getById(id: number) {
         const word = await this.wordRepository.findById(id);
-        if (!word) throw new NotFoundError("Word not found");
+        if (!word) throw new NotFoundError("Từ vựng không tồn tại");
 
         return word;
     }
 
+    public async createWordDict(newWord: CreateWordDto) {
+        const { vocab, phonetic, meaning, kindId } = newWord;
+        var word = await this.wordRepository.getByVocab(vocab);
+        if (word) throw new BadRequestError("Từ vựng đã tồn tại");
+
+        return await Word.create({
+            vocab: vocab,
+            phonetic: phonetic,
+            wordKinds: [{
+                kindId: kindId,
+                meanings: [{
+                    name: meaning,
+                }]
+            }]
+        }, {
+            include: [{
+                model: WordKind,
+                include: [{
+                    model: Meaning,
+                }]
+            }]
+        });
+    }
+
     public async updateWord(id: number, newWord: UpdateWordDto) {
-        const word = await this.getById(id)
+        const word = await Word.findOne({
+            where: {id}
+        })
+        
+        if (!word) throw new BadRequestError("Từ vựng không tồn tại");
+        
+        const existedWord = await Word.findAll({
+            where: {
+                id: {
+                    [Op.ne]: id
+                },
+                vocab: newWord.vocab,
+            }
+        })
 
-        word.vocab = newWord.vocab;
-        word.phonetic = newWord.phonetic;
-        // word.meaning = newWord.meaning;
-        word.audios = newWord.audios;
+        if (existedWord.length > 0) throw new BadRequestError("Từ vựng đã tồn tại");
 
-        const editedWord = (await word.save()).get({plain: true})
-        editedWord.meaning = editedWord.meaning ? JSON.parse(editedWord.meaning) : editedWord.meaning;
-        return editedWord;
+        await Word.update({
+            vocab: newWord.vocab,
+            phonetic: newWord.phonetic,
+            audios: newWord.audios,
+            imageLink: newWord.imageLink
+        }, {where: {id}})
     }
 
     public async deleteWord(id: number) {

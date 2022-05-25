@@ -4,39 +4,49 @@ import { Service } from "typedi";
 import { Op } from "sequelize";
 import sequelize from "../models/index";
 import Meaning from "../models/Meaning";
-import Definition from "../models/Definition";
-import Extra from "models/Extra";
+import Idiom from "models/Idiom";
 import Example from "models/Example";
+import Kind from "../models/Kind";
+import WordKind from "models/WordKind";
 
 @Service()
 export default class WordRepository {
     public async searchWord(word: string) {
         return await Word
-            .scope('is_dict').scope('do_not_get_time')
+            .scope(['is_dict', 'do_not_get_time'])
             .findAll({
                 where: {
                     vocab: {
                         [Op.like]: `${word}%`
                     }
                 },
+                
                 limit: 10,
                 include: [
                     {
-                        model: Meaning.scope('do_not_get_time'),
-                        include: [{ model: Definition.scope('do_not_get_time') }]
+                        model: WordKind.scope('do_not_get_time'),
+                        
+                        include: [{
+                            model: Kind,
+                            attributes: ['name'],
+                        }, {
+                            model: Meaning,
+                            attributes: ['name'],
+                        }]
                     },
                 ],
             })
     }
 
     public async findById(id: number) {
-        return await Word.scope('is_dict')
-        .findByPk(id);
+        return await Word.scope('is_dict').findOne({
+            where:{id}
+        })
     }
 
     public async getAllWords(page: number, size: number,
         keywordCondition: any, phoneticCondition: any, meaningCondition: any) {
-        return await Word.findAndCountAll({
+        return await Word.scope(['is_dict', 'do_not_get_time']).findAndCountAll({
             offset: page * size,
             limit: size,
             where: {
@@ -47,10 +57,11 @@ export default class WordRepository {
             },
             include: [
                 {
-                    model: Meaning.scope('do_not_get_time'),
+                    model: WordKind.scope('do_not_get_time'),
                     include: [
                         {
-                            model: Definition.scope('do_not_get_time'),
+                            model: Meaning,
+                            attributes: ['name'],
                             where: meaningCondition
                         }
                     ]
@@ -71,11 +82,11 @@ export default class WordRepository {
             },
             include: [
                 {
-                    model: Meaning, 
+                    model: WordKind.scope('do_not_get_time'), 
                     include: [
-                        {
-                            model: Definition, include: [{model: Example}]
-                    }, {model: Extra}]
+                        {model: Kind.scope('do_not_get_time')},
+                        {model: Meaning, include: [{model: Example}]}, 
+                        {model: Idiom}]
                 }
             ]
         })

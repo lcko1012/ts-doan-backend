@@ -9,7 +9,7 @@ import WordKind from "./WordKind";
         attributes: {
             exclude: ["createdAt", "updatedAt"]
         }
-    }
+    },
 }))
 @Table
 class Kind extends Model {
@@ -22,21 +22,17 @@ class Kind extends Model {
     @Column
     name: string
 
-    @HasMany(() => Meaning)
-    meanings: Meaning[];
+    // @HasMany(() => Meaning)
+    // meanings: Meaning[];
 
-    @HasMany(() => Idiom)
-    idioms: Idiom[];
+    // @HasMany(() => Idiom)
+    // idioms: Idiom[];
 
-    // @ForeignKey(() => Word)
-    // @Column
-    // wordId: number;
-
-    // @BelongsTo(() => Word)
-    // word: Word;
-
-    @BelongsToMany(() => Word, () => WordKind)
+    @BelongsToMany(() => Word,() => WordKind, "kindId", "wordId")
     words: Word[];
+
+    @HasMany(() => WordKind)
+    wordKinds: WordKind[];
 }
 
 export default Kind;

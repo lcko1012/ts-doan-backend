@@ -1,10 +1,10 @@
 import { StatusCodes } from "http-status-codes";
-import { Authorized, BadRequestError, Body, Delete, Get, HttpCode, JsonController, Param, Patch, Put, QueryParam, QueryParams, Res } from "routing-controllers";
+import { Authorized, BadRequestError, Body, BodyParam, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
 import WordService from "../services/WordService";
 import { Service } from "typedi";
 import Role from "../models/Role";
 import PageRequest from "../dto/PageDto";
-import { ExampleRequest, UpdateWordDto } from "../dto/WordDto";
+import { CreateWordDto, ExampleRequest, UpdateWordDto } from "../dto/WordDto";
 import {Response} from 'express'
 
 @JsonController('/word')
@@ -51,7 +51,7 @@ export default class WordController {
     }
 
     @Get('/vocab/:vocab')
-    @Authorized()
+    // @Authorized()
     async getWordDetails(@Param('vocab') vocab: string, @Res() res: Response) {
         if (!vocab) throw new BadRequestError("Vocab is required");
         
@@ -59,14 +59,24 @@ export default class WordController {
         return res.send(result)
     }
 
+    @Post('/admin')
+    // @Authorized(Role.ROLE_ADMIN)
+    async createWordDict(@Body() newWord: CreateWordDto, @Res() res: Response) {
+        const word = await this.wordService.createWordDict(newWord);
+        return res.send(word);
+    }
+
     @Put('/:id/admin')
     @HttpCode(StatusCodes.OK)
-    @Authorized(Role.ROLE_ADMIN)
+    // @Authorized(Role.ROLE_ADMIN)
     async updateWord(@Param('id') id: number,
-                    @Body() newWord: UpdateWordDto) {
-        newWord.meaning = JSON.stringify(newWord.meaning)
-        const word = await this.wordService.updateWord(id, newWord);
-        return word;
+                    @Body() newWord: UpdateWordDto,
+                    @Res() res: Response) {
+        newWord.audios = newWord.audios ? JSON.stringify(newWord.audios) : null;
+        await this.wordService.updateWord(id, newWord);
+        return {
+            message: "Cập nhật từ thành công"
+        };
     }
 
 

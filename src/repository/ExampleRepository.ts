@@ -1,7 +1,7 @@
 import { Service } from "typedi";
-import Definition from "../models/Definition";
+import Definition from "../models/Meaning";
 import Example from "../models/Example";
-import Meaning from "../models/Meaning";
+import Meaning from "../models/Kind";
 import Word from "../models/Word";
 
 @Service()

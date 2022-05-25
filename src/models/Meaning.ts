@@ -1,12 +1,18 @@
 import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, HasMany, Scopes } from "sequelize-typescript";
 import Example from "./Example";
 import Kind from './Kind'
+import WordKind from "./WordKind";
 
 @Scopes(() => ({
     do_not_get_time: {
         attributes: {
             exclude: ["createdAt", "updatedAt"]
         }
+    },
+    with_examples: {
+        include: [{
+            model: Example
+        }]
     }
 }))
 @Table
@@ -20,15 +26,26 @@ class Meaning extends Model {
     @Column
     name: string
  
-    @HasMany(() => Example)
+    @HasMany(() => Example, {
+        onDelete: 'CASCADE',
+    })
     examples: Example[];
 
-    @ForeignKey(() => Kind)
+    @ForeignKey(() => WordKind)
     @Column
-    kindId: number;
+    wordKindId: number;
 
-    @BelongsTo(() => Kind)
-    kind: Kind;
+    @BelongsTo(() => WordKind, {
+        onDelete: 'CASCADE',
+    })
+    wordKind: WordKind;
+
+    // @ForeignKey(() => Kind)
+    // @Column
+    // kindId: number;
+
+    // @BelongsTo(() => Kind)
+    // kind: Kind;
 }
 
 export default Meaning;
