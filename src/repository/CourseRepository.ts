@@ -40,4 +40,16 @@ export default class CourseRepository {
 
         return courses;
     }
+
+    public async getCoursesByTeacher(email: string) {
+        return await Course.findAll({
+            where: {
+                email
+            },
+            attributes: [
+                'id', 'name', 'imageLink', 
+                'slug', 'isPublic'
+            ],
+        })
+    } 
 }

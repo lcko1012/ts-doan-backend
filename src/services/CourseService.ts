@@ -45,4 +45,8 @@ export default class CourseService {
 
         return newCourse;
     }
+
+    async getCoursesByTeacher(email: string) {
+        return await this.courseRepository.getCoursesByTeacher(email);
+    }
 }
