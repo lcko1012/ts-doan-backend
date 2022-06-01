@@ -21,9 +21,23 @@ export default class CourseController {
         @CurrentUser() user: IUserCredential,
         @Res() res: Response) 
     {   
-        const {email} = user;
-        const courses = await this.courseService.getCoursesByTeacher(email);
-        res.send(courses);
+        const {id} = user;
+        const courses = await this.courseService.getCoursesByTeacher(id);
+        return res.send(courses);
+    }
+
+    @Post('/teacher')
+    @Authorized('ROLE_TEACHER')
+    async createCourseByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Body() course: CouseCreatingDto,
+        @Res() res: Response,) 
+    {
+        const {id} = user;
+        await this.courseService.createCourseByTeacher(id, course);
+        return res.status(StatusCodes.CREATED).send({
+            message: "Tạo khóa học thành công"
+        });
     }
 
     // @Get('/admin')

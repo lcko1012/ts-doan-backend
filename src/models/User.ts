@@ -56,6 +56,9 @@ class User extends Model {
     @BelongsToMany(() => Course, () => UserCourse)
     courses?: Course[];
 
+    @HasMany(() => Course, 'fk_course_owner')
+    ownedCourses?: Course[];
+
     @BelongsToMany(() => Test, () => UserTest)
     tests?: Test[];
 }

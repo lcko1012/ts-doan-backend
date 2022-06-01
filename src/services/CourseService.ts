@@ -28,25 +28,15 @@ export default class CourseService {
             count: result.count
         }
     }
-
-    async createCourse(course: CouseCreatingDto): Promise<Course> {
-        const {name, introduction, description, imageUrl, isPublic} = course;
-
-        var newSlug = StringUtils.createSlug(name);
-
-        const newCourse = await Course.build({
-            name,
-            introduction,
-            description,
-            imageUrl,
-            isPublic,
-            slug: newSlug, 
-        }).save();
-
-        return newCourse;
+    async getCoursesByTeacher(teacherId: number) {
+        return await this.courseRepository.getCoursesByTeacher(teacherId);
     }
 
-    async getCoursesByTeacher(email: string) {
-        return await this.courseRepository.getCoursesByTeacher(email);
+    async createCourseByTeacher(teacherId: number, course: CouseCreatingDto) {
+        return await Course.create({
+            name: course.name,
+            categoryId: course.categoryId,
+            teacherId
+        })
     }
 }

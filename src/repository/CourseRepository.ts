@@ -41,10 +41,10 @@ export default class CourseRepository {
         return courses;
     }
 
-    public async getCoursesByTeacher(email: string) {
+    public async getCoursesByTeacher(teacherId: number) {
         return await Course.findAll({
             where: {
-                email
+                teacherId
             },
             attributes: [
                 'id', 'name', 'imageLink', 

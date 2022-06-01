@@ -49,9 +49,18 @@ class Course extends Model {
     @HasMany(() => Lesson)
     lessons: Lesson[];
 
+    //Student list
     @BelongsToMany(() => User, () => UserCourse)
     users: User[];
-    
+
+    //Teacher associated with this course
+    @ForeignKey(() => User)
+    @Column
+    teacherId: number;
+
+    @BelongsTo(() => User, 'fk_course_owner')
+    teacher: User;
+
     @CreatedAt
     @Column({
         allowNull: true
