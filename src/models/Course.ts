@@ -14,6 +14,9 @@ class Course extends Model {
     description: string
 
     @Column
+    subtitle: string
+
+    @Column
     imageLink: string
 
     @Column
@@ -31,7 +34,7 @@ class Course extends Model {
     rating: number;
 
     @Column({
-        defaultValue: true
+        defaultValue: false
     })
     isPublic: boolean
 

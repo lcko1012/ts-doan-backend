@@ -1,4 +1,4 @@
-import { CouseCreatingDto } from "dto/CourseDto";
+import { CourseUpdateBasicDto, CouseCreatingDto } from "dto/CourseDto";
 import PageRequest from "dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -31,7 +31,7 @@ export default class CourseController {
     async createCourseByTeacher(
         @CurrentUser() user: IUserCredential,
         @Body() course: CouseCreatingDto,
-        @Res() res: Response,) 
+        @Res() res: Response) 
     {
         const {id} = user;
         await this.courseService.createCourseByTeacher(id, course);
@@ -40,30 +40,40 @@ export default class CourseController {
         });
     }
 
-    // @Get('/admin')
-    // async getCourses(@QueryParams() pageRequest: PageRequest, @Res() res: Response) {
-    //     const {list, count} = await this.courseService.getCourses(pageRequest);
-    //     return res.send({courses: list, count});
-    // }
+    @Get('/:slug/edit/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getDetailsToEditByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Param('slug') slug: string,
+        @Res() res: Response)
+    {
+        const course = await this.courseService.getDetailsToEditByTeacher(user, slug);
+        return res.send(course);
+    }
 
-    // @Get('/topic/:topic_id')
-    // @HttpCode(StatusCodes.OK)
-    // async getCoursesByTopic(@Param('topic_id') topicId: number, @Res() res: Response) {
-    //     const courses = await this.courseService.getCoursesByTopic(topicId);
-    //     return res.send(courses);
-    // }
+    @Get('/:slug/basic/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getBasicByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Param('slug') slug: string,
+        @Res() res: Response) 
+    {
+        const course = await this.courseService.getBasicByTeacher(user, slug);
+        return res.send(course);
+    }
 
-    // @Get('/:slug')
-    // @HttpCode(StatusCodes.OK)
-    // async getCourse(@Param('slug') slug: string, @Res() res: Response) {
-    //     const course = await this.courseService.getCourseBySlug(slug);
-    //     return res.send(course);
-    // }
+    @Put('/:id/basic/teacher')
+    @Authorized('ROLE_TEACHER')
+    async updateBasicByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Param('id') id: number,
+        @Body() data: CourseUpdateBasicDto,
+        @Res() res: Response) 
+    {
+        await this.courseService.updateBasicByTeacher(user, id, data);
+        return res.send({
+            message: 'Cập nhật thành công'
+        });
+    }
 
-    // @Post()
-    // @HttpCode(StatusCodes.CREATED)
-    // async createCourse(@Body() course: CouseCreatingDto, @Res() res: Response) {
-    //     const newCourse = await this.courseService.createCourse(course);
-    //     return res.send(newCourse);
-    // }
 }

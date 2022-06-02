@@ -28,7 +28,6 @@ export function PreAuthorize(action: Action, roles: string[]): boolean {
 export function CurrentUserChecker(action: Action) {
     if (PreAuthorize(action, [])) {
         const token = action.request.headers['authorization'].replace('Bearer ', '');
-        console.log(token)
 
         const credential: IUserCredential = jwtService.getPayload(token);
 
