@@ -9,16 +9,22 @@ import PageRequest from "dto/PageDto";
 import { Op } from "sequelize";
 import IUserCredential from "interfaces/IUserCredential";
 import User from "models/User";
+import Lesson from "models/Lesson";
+import Video from "models/Video";
+import Article from "models/Article";
+import Word from "models/Word";
+import sequelize from "models";
+import { Sequelize } from "sequelize-typescript";
 
 
 @Service()
 export default class CourseService {
     constructor(
         private courseRepository: CourseRepository,
-    ){}
+    ) { }
 
     async getCourses(pageRequest: PageRequest) {
-        const {page, size, courseName} = pageRequest;
+        const { page, size, courseName } = pageRequest;
 
         var courseNameCondition = courseName ? { name: { [Op.like]: `%${courseName}%` } } : {};
 
@@ -26,7 +32,7 @@ export default class CourseService {
         const list = result.rows
 
         return {
-            list, 
+            list,
             count: result.count
         }
     }
@@ -38,13 +44,13 @@ export default class CourseService {
         var slug = StringUtils.createSlug(course.name);
 
         var existedCourse = await Course.findOne({
-            where: {slug}
+            where: { slug }
         })
 
-        while(existedCourse) {
+        while (existedCourse) {
             slug = slug + '-' + StringUtils.randomInt(1, 100);
             existedCourse = await Course.findOne({
-                where: {slug}
+                where: { slug }
             })
         }
 
@@ -59,7 +65,7 @@ export default class CourseService {
 
     async getDetailsToEditByTeacher(user: IUserCredential, slug: string) {
         const course = await Course.findOne({
-            where: {slug, teacherId: user.id}
+            where: { slug, teacherId: user.id }
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
@@ -69,10 +75,10 @@ export default class CourseService {
 
     async getBasicByTeacher(user: IUserCredential, slug: string) {
         const course = await Course.findOne({
-            where: {slug, teacherId: user.id},
+            where: { slug, teacherId: user.id },
             attributes: [
                 'id', 'name', 'description',
-                'subtitle', 'imageLink', 'slug'
+                'subtitle', 'imageLink', 'slug',
             ]
         })
 
@@ -83,7 +89,7 @@ export default class CourseService {
 
     async updateBasicByTeacher(user: IUserCredential, id: number, data: CourseUpdateBasicDto) {
         const course = await Course.findOne({
-            where: {id, teacherId: user.id}
+            where: { id, teacherId: user.id }
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
@@ -93,6 +99,27 @@ export default class CourseService {
             description: data.description,
             subtitle: data.subtitle,
             imageLink: data.imageLink
-        }, {where: {id}})
+        }, { where: { id } })
+    }
+
+    async getLessonOfCourse(user: IUserCredential, slug: string) {
+        const course = await Course.findOne({
+            where: { slug, teacherId: user.id },
+            include: [{
+                model: Lesson,
+                include: [
+                    { model: Video },
+                    { model: Article },
+                    {
+                        model: Word
+                    }
+                ]
+            }],
+            attributes: ['id', 'slug', 'isPublic', 'teacherId']
+        })
+
+        if (!course) throw new NotFoundError('Không tìm thấy khóa học')
+
+        return course;
     }
 }

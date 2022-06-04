@@ -91,4 +91,58 @@ export default class WordRepository {
             ]
         })
     }
+
+    public async getAllWordByLesson(
+        lessonId: number, page: number, size: number,
+        keywordCondition: any, phoneticCondition: any, meaningCondition: any) 
+    {
+        return await Word.findAndCountAll({
+            offset: page * size,
+            limit: size,
+            where: {
+                [Op.and]: [
+                    keywordCondition,
+                    phoneticCondition,
+                    
+                ],
+                lessonId: lessonId
+            },
+            include: [
+                {
+                    model: WordKind.scope('do_not_get_time'),
+                    include: [
+                        {
+                            model: Meaning,
+                            attributes: ['name'],
+                            where: meaningCondition
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+
+    public async createWord({vocab, phonetic, meaning, kindId}: {
+        vocab: string, phonetic: string, meaning: string, kindId: number}, 
+        lessonId: number | null) 
+    {
+        return await Word.create({
+            vocab: vocab,
+            phonetic: phonetic,
+            wordKinds: [{
+                kindId: kindId,
+                meanings: [{
+                    name: meaning,
+                }]
+            }],
+            lessonId
+        }, {
+            include: [{
+                model: WordKind,
+                include: [{
+                    model: Meaning,
+                }]
+            }]
+        });
+    }
 }

@@ -47,3 +47,26 @@ export const audioUploadOptions = {
         fieldNameSize: 255
     }
 }
+
+const allowedVideo = ['video/mp4']
+
+export const videoUploadOptions = {
+    storage: multer.diskStorage({
+        filename: (req, file, callback) => {
+            callback(null, Date.now() + "-" + file.originalname);
+        }
+    }),
+
+    fileFilter(req: Express.Request, file: Express.Multer.File, callback: multer.FileFilterCallback) {
+        if (allowedVideo.includes(file.mimetype)) {
+            callback(null, true);
+        } else {
+            callback(new BadRequestError("Sai định dạng video"));
+        }
+    },
+    
+    limits: {
+        fileSize: 1024 * 1024 * 70, // 2MB
+        fieldNameSize: 255
+    }
+}

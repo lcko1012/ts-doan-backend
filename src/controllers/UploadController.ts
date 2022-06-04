@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { audioUploadOptions, fileUploadOptions } from "middlewares/FileUploadMiddleware";
+import { audioUploadOptions, fileUploadOptions, videoUploadOptions } from "middlewares/FileUploadMiddleware";
 import { Authorized, CurrentUser, HttpCode, JsonController, Post, Req, UploadedFile } from "routing-controllers";
 import StorageService from "services/StorageServices";
 import { Service } from "typedi";
@@ -50,6 +50,27 @@ export default class UploadController {
 
         return {
             audioLink: publicUrl
+        }
+    }
+
+    @Post('/video')
+    @Authorized()
+    async uploadVideo(
+        @UploadedFile("video", {options: videoUploadOptions}) video: Express.Multer.File, 
+        @CurrentUser() currentUser: IUserCredential) 
+    {
+        const email = currentUser.email.split("@")[0];
+        let publicUrl = await this.storageService.uploadFile(email, video.path)
+
+        fs.unlink(video.path, err => {
+            if (err) {
+                console.error(err);
+                throw err;
+            }
+        })
+
+        return {
+            path: publicUrl
         }
     }
 }

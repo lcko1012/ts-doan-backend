@@ -1,4 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Index, Model, Table } from "sequelize-typescript";
+import Article from "./Article";
 import Course from "./Course";
 import Video from "./Video";
 import Word from "./Word";
@@ -25,6 +26,9 @@ export default class Lesson extends Model {
 
     @HasMany(() => Video)
     videos: Video[];
+
+    @HasMany(() => Article)
+    articles: Article[];
 
     @ForeignKey(() => Course)
     @Column

@@ -3,7 +3,7 @@ import fs from "fs";
 import Word from "models/Word";
 import WordRepository from "../repository/WordRepository";
 import PageRequest from "dto/PageDto";
-import { CreateWordDto, UpdateWordDto,  } from "../dto/WordDto";
+import { CreateWordDto, UpdateWordDto, } from "../dto/WordDto";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import sequelize from "../models";
 import { Model, Op } from "sequelize";
@@ -13,6 +13,9 @@ import Meaning from "models/Meaning";
 import Idiom from "models/Idiom";
 import { KindType } from "interfaces/Word";
 import WordKind from "models/WordKind";
+import IUserCredential from "interfaces/IUserCredential";
+import Course from "models/Course";
+import Lesson from "models/Lesson";
 
 @Service()
 export default class WordService {
@@ -35,7 +38,7 @@ export default class WordService {
                                 where: {
                                     vocab: item.vocab,
                                 },
-                                defaults: {phonetic: item.phonetic},
+                                defaults: { phonetic: item.phonetic },
                                 transaction
                             })
 
@@ -45,8 +48,8 @@ export default class WordService {
                                 })
 
                                 const existedKind = await Kind.findOrCreate({
-                                    where: {name: kind.name},
-                                    defaults: {name: kind.name},
+                                    where: { name: kind.name },
+                                    defaults: { name: kind.name },
                                 })
 
                                 await WordKind.create({
@@ -54,11 +57,11 @@ export default class WordService {
                                     kindId: existedKind[0].id,
                                     meanings: kind.meanings,
                                     idioms: kind.idioms,
-                                    
+
                                 }, {
                                     include: [{
                                         model: Meaning,
-                                        include: [{model: Example}]
+                                        include: [{ model: Example }]
                                     }, {
                                         model: Idiom,
                                     }],
@@ -67,8 +70,8 @@ export default class WordService {
                             }
                         }
                     })
-                   
-                }catch(err) {
+
+                } catch (err) {
                     // if (transaction) await transaction.rollback()
                     throw new BadRequestError("Đã có lỗi xảy ra")
                 }
@@ -118,32 +121,16 @@ export default class WordService {
         var word = await this.wordRepository.getByVocab(vocab);
         if (word) throw new BadRequestError("Từ vựng đã tồn tại");
 
-        return await Word.create({
-            vocab: vocab,
-            phonetic: phonetic,
-            wordKinds: [{
-                kindId: kindId,
-                meanings: [{
-                    name: meaning,
-                }]
-            }]
-        }, {
-            include: [{
-                model: WordKind,
-                include: [{
-                    model: Meaning,
-                }]
-            }]
-        });
+        return await this.wordRepository.createWord({vocab, phonetic, meaning, kindId}, null)
     }
 
     public async updateWord(id: number, newWord: UpdateWordDto) {
         const word = await Word.findOne({
-            where: {id}
+            where: { id }
         })
-        
+
         if (!word) throw new BadRequestError("Từ vựng không tồn tại");
-        
+
         const existedWord = await Word.findAll({
             where: {
                 id: {
@@ -160,11 +147,61 @@ export default class WordService {
             phonetic: newWord.phonetic,
             audios: newWord.audios,
             imageLink: newWord.imageLink
-        }, {where: {id}})
+        }, { where: { id } })
     }
 
     public async deleteWord(id: number) {
         const word = await this.getById(id)
         await word.destroy();
+    }
+
+    public async getWordsByLesson(
+        lessonSlug: string, courseSlug: string,
+        user: IUserCredential, pageRequest: PageRequest) {
+        const lesson = await Lesson.findOne({
+            where: { slug: lessonSlug },
+            include: [{
+                model: Course,
+                where: { slug: courseSlug, teacherId: user.id }
+            }]
+        })
+
+        if (!lesson) throw new NotFoundError("Bài học không tồn tại")
+
+        const { page, size, keyword, phonetic, meaning } = pageRequest;
+        var keywordCondition = keyword ? { vocab: { [Op.like]: `${keyword}%` } } : {};
+        var phoneticCondition = phonetic ? { phonetic: { [Op.like]: `%${phonetic}%` } } : {};
+        var meaningCondition = meaning ? { name: { [Op.like]: `%${meaning}%` } } : {};
+
+        const result = await this.wordRepository.getAllWordByLesson(lesson.id, page, size,
+            keywordCondition, phoneticCondition, meaningCondition)
+
+        const list = result.rows
+        return {
+            list,
+            count: result.count
+        }
+    }
+
+    
+    public async createWordLessonByTeacher(
+        lessonSlug: string, courseSlug: string,
+        newWord: CreateWordDto, user: IUserCredential) 
+    {
+        const lesson = await Lesson.findOne({
+            where: {slug: lessonSlug},
+            include: [{model: Course, where: {slug: courseSlug, teacherId: user.id}}]
+        })
+
+        if (!lesson) throw new NotFoundError('Bài học không tồn tại')
+        
+        const { vocab, phonetic, meaning, kindId } = newWord;
+        const existedWord = await Word.findOne({
+            where: {vocab, lessonId: lesson.id},
+        })
+        if (existedWord) throw new BadRequestError('Từ vựng đã tồn tại trong bài học này')
+
+        return await this.wordRepository.createWord({vocab, phonetic, meaning, kindId}, 
+                                                    lesson.id)
     }
 }

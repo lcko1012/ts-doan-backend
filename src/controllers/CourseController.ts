@@ -76,4 +76,14 @@ export default class CourseController {
         });
     }
 
+    @Get('/:slug/lesson/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getLessonsOfCourseByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Param('slug') slug: string,
+        @Res() res: Response)
+    {
+        const course = await this.courseService.getLessonOfCourse(user, slug);
+        return res.send(course)
+    }
 }
