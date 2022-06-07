@@ -1,17 +1,20 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class UpdateWordDto {
-  @IsNotEmpty({ message: "Word must not be empty" })
-  @MaxLength(255, { message: "Word must not be longer than 255 characters" })
+  // @IsNotEmpty({ message: "Word must not be empty" })
+  // @MaxLength(255, { message: "Word must not be longer than 255 characters" })
   vocab: string;
 
-  @IsNotEmpty({ message: "Phonetic must not be empty" })
-  @MaxLength(255, { message: "Phonetic must not be longer than 255 characters" })
+  // @IsNotEmpty({ message: "Phonetic must not be empty" })
+  // @MaxLength(255, { message: "Phonetic must not be longer than 255 characters" })
   phonetic: string;
 
   imageLink: string;
 
   audios: string;
+
+  @IsOptional()
+  lessonId: number;
 }
 
 class WordKindDto {

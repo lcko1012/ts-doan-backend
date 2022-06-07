@@ -1,8 +1,9 @@
 import { LessonCreatingDto } from "dto/LessonDto";
 import IUserCredential from "interfaces/IUserCredential";
-import { Authorized, Body, CurrentUser, Get, JsonController, Post } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Get, JsonController, Param, Post, Res } from "routing-controllers";
 import LessonService from "services/LessonService";
 import { Service } from "typedi";
+import { Response } from 'express'
 
 @JsonController('/lesson')
 @Service()
@@ -24,10 +25,10 @@ export default class LessonController {
         }
     }
 
-    // @Get('/:slug/post/words')
-    // @Authorized('ROLE_TEACHER')
-    // async getWords()
-    // {
-        
-    // }
+    @Get('/:lessonId/flashcard/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getFlashcard(@Param('lessonId') lessonId: number ,@CurrentUser() user: IUserCredential, @Res() res: Response) {
+        const words = await this.lessonService.getFlashcard(lessonId, user);
+        return res.send(words);
+    }
 }

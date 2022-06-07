@@ -73,9 +73,9 @@ export default class CourseService {
         return course;
     }
 
-    async getBasicByTeacher(user: IUserCredential, slug: string) {
+    async getBasicByTeacher(user: IUserCredential, id: number) {
         const course = await Course.findOne({
-            where: { slug, teacherId: user.id },
+            where: { id, teacherId: user.id },
             attributes: [
                 'id', 'name', 'description',
                 'subtitle', 'imageLink', 'slug',
@@ -102,9 +102,9 @@ export default class CourseService {
         }, { where: { id } })
     }
 
-    async getLessonOfCourse(user: IUserCredential, slug: string) {
+    async getLessonOfCourse(user: IUserCredential, courseId: number) {
         const course = await Course.findOne({
-            where: { slug, teacherId: user.id },
+            where: { id: courseId, teacherId: user.id },
             include: [{
                 model: Lesson,
                 include: [

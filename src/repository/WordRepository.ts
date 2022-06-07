@@ -75,10 +75,29 @@ export default class WordRepository {
     }
 
 
-    public async getByVocab(vocab: string) {
-        return await Word.scope('is_dict').findOne({
+    public async getByVocab(vocab: string, lessonId: number | null) {
+        return await Word.findOne({
             where: {
-                vocab: vocab
+                vocab,
+                lessonId
+            },
+            include: [
+                {
+                    model: WordKind.scope('do_not_get_time'), 
+                    include: [
+                        {model: Kind.scope('do_not_get_time')},
+                        {model: Meaning, include: [{model: Example}]}, 
+                        {model: Idiom}]
+                }
+            ]
+        })
+    }
+
+    public async getById(id: number, lessonId: number | null) {
+        return await Word.findOne({
+            where: {
+                id,
+                lessonId
             },
             include: [
                 {

@@ -1,7 +1,14 @@
-import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, Scopes } from "sequelize-typescript";
 import Kind from "./Kind";
 import WordKind from "./WordKind";
 
+@Scopes(() => ({
+    do_not_get_time: {
+        attributes: {
+            exclude: ["createdAt", "updatedAt"]
+        }
+    },
+}))
 @Table
 class Idiom extends Model {
     @Column({

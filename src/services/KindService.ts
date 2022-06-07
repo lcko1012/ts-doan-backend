@@ -23,7 +23,7 @@ export default class KindService {
     }
 
     public async getKindsForWord(id: number) {
-        const word = await Word.scope('is_dict').findOne({
+        const word = await Word.findOne({
             where: {id},
             include: [
                 {model: Kind}

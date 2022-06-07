@@ -11,7 +11,7 @@ import WordKind from "./WordKind";
     },
     with_examples: {
         include: [{
-            model: Example
+            model: Example,
         }]
     }
 }))

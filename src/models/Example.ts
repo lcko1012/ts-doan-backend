@@ -1,6 +1,13 @@
-import { Column, HasOne, Model, Table, ForeignKey, BelongsTo, DataType } from "sequelize-typescript";
+import { Column, HasOne, Model, Table, ForeignKey, BelongsTo, DataType, Scopes } from "sequelize-typescript";
 import Meaning from "./Meaning";
 
+@Scopes(() => ({
+    do_not_get_time: {
+        attributes: {
+            exclude: ["createdAt", "updatedAt"]
+        }
+    },
+}))
 @Table
 class Example extends Model {
     @Column({

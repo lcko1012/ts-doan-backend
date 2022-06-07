@@ -3,11 +3,11 @@ import { IsNotEmpty, IsOptional, Min } from "class-validator";
 export default class PageRequest {
     @IsOptional()
     @Min(0, {message: "Size must be greater than or equal to 0"})
-    size: number = 10;
+    size: number;
 
     @IsOptional()
     @Min(0, {message: "Page number must be greater than or equal to 0"})
-    page: number = 0;
+    page: number;
 
     @IsOptional()
     // @IsNotEmpty({message: "Keyword must not be empty"})

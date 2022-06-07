@@ -25,6 +25,7 @@ export default class MailSender {
 
         this.mailSender.sendMail(mailOptions, (err, info) => {
             if (err) {
+                console.log(err)
                 console.log("loi mail")
                 return err
             }});

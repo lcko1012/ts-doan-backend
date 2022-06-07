@@ -45,7 +45,7 @@ export default class WordController {
         return res.send({ list, count });
     }
 
-    @Get('/:id')
+    @Get('/:id/admin')
     async getById(@Param('id') id: number, @Res() res: Response) {
         const word = await this.wordService.getById(id);
         return res.send(word);
@@ -94,32 +94,33 @@ export default class WordController {
         }
     }
 
-    @Get('/lesson/:lessonSlug/course/:courseSlug/teacher')
+    //get by id
+    @Get('/lesson/:lessonId/course/:courseId/teacher')
     @Authorized('ROLE_TEACHER')
     async getWordsOfLessonByTeacher(
         @QueryParams() pageRequest: PageRequest,
-        @Param('lessonSlug') lessonSlug: string,
-        @Param('courseSlug') courseSlug: string,
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
         @CurrentUser() user: IUserCredential, @Res() res: Response)
     {
-        const {list, count} = await this.wordService.getWordsByLesson(lessonSlug, 
-                                            courseSlug, user, pageRequest);
+        const {list, count} = await this.wordService.getWordsByLesson(lessonId, 
+                                            courseId, user, pageRequest);
 
         return res.send({
             list, count
         });
     }
 
-    @Post('/lesson/:lessonSlug/course/:courseSlug/teacher')
+    @Post('/lesson/:lessonId/course/:courseId/teacher')
     @Authorized('ROLE_TEACHER')
     async createOfLessonByTeacher(
-        @Param('lessonSlug') lessonSlug: string,
-        @Param('courseSlug') courseSlug: string,
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
         @Body() newWord: CreateWordDto,
         @CurrentUser() user: IUserCredential,
         @Res() res: Response) 
     {
-        const word = await this.wordService.createWordLessonByTeacher(lessonSlug, courseSlug,
+        const word = await this.wordService.createWordLessonByTeacher(lessonId, courseId,
                                                                     newWord, user);
         return res.send({
             message: "Thêm từ thành công",
@@ -127,4 +128,67 @@ export default class WordController {
         });
     }
 
+    @Post('/exist/lesson/:lessonId/course/:courseId/teacher')
+    @Authorized('ROLE_TEACHER')
+    async addExistedWordToLesson(
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
+        @BodyParam('wordId') wordId: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response)
+    {
+        const newWord = await this.wordService.addExistedWordToLesson(lessonId, courseId, wordId, user);
+
+        return res.send({
+            message: "Thêm từ thành công",
+            newWord
+        })
+    }
+
+    @Get('/:wordId/lesson/:lessonId/course/:courseId/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getWordInLessonByTeacher(
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
+        @Param('wordId') wordId: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response)
+    {
+        const word = await this.wordService.getWordInLesson(lessonId, courseId, wordId, user);
+        return res.send(word)
+    }
+
+    @Put('/:wordId/lesson/:lessonId/course/:courseId/teacher')
+    @Authorized('ROLE_TEACHER')
+    async updateWordInLessonByTeacher(
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
+        @Param('wordId') wordId: number,
+        @Body() newWord: UpdateWordDto,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response)
+    {
+        newWord.audios = newWord.audios ? JSON.stringify(newWord.audios) : null;
+
+        if (!newWord.lessonId) throw new BadRequestError('')
+        await this.wordService.updateWordInLessonByTeacher(lessonId, courseId, wordId, newWord, user);
+        return res.send({
+            message: "Cập nhật từ thành công"
+        })
+    }
+
+    @Delete('/:wordId/lesson/:lessonId/course/:courseId/teacher')
+    @Authorized('ROLE_TEACHER')
+    async deleteWordInLessonByTeacher(
+        @Param('lessonId') lessonId: number,
+        @Param('courseId') courseId: number,
+        @Param('wordId') wordId: number,
+        @CurrentUser() user: IUserCredential,
+    )
+    {
+        await this.wordService.deleteWordInLessonByTeacher(lessonId, courseId, wordId, user);
+        return {
+            message: "Xóa thành công"
+        }
+    }
 }

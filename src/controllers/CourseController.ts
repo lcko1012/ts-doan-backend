@@ -51,14 +51,14 @@ export default class CourseController {
         return res.send(course);
     }
 
-    @Get('/:slug/basic/teacher')
+    @Get('/:id/basic/teacher')
     @Authorized('ROLE_TEACHER')
     async getBasicByTeacher(
         @CurrentUser() user: IUserCredential,
-        @Param('slug') slug: string,
+        @Param('id') id: number,
         @Res() res: Response) 
     {
-        const course = await this.courseService.getBasicByTeacher(user, slug);
+        const course = await this.courseService.getBasicByTeacher(user, id);
         return res.send(course);
     }
 
@@ -76,14 +76,14 @@ export default class CourseController {
         });
     }
 
-    @Get('/:slug/lesson/teacher')
+    @Get('/:courseId/lesson/teacher')
     @Authorized('ROLE_TEACHER')
     async getLessonsOfCourseByTeacher(
         @CurrentUser() user: IUserCredential,
-        @Param('slug') slug: string,
+        @Param('courseId') courseId: number,
         @Res() res: Response)
     {
-        const course = await this.courseService.getLessonOfCourse(user, slug);
+        const course = await this.courseService.getLessonOfCourse(user, courseId);
         return res.send(course)
     }
 }

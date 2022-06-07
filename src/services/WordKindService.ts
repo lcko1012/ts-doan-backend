@@ -19,7 +19,6 @@ export default class WordKindService {
         })
 
         await newWordKind.save();
-        console.log(newWordKind)
     }
 
     public async deleteWordKind(wordId: number, kindId: number) {
