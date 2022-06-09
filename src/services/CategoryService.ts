@@ -21,13 +21,21 @@ export default class CategoryService {
     }
    
     async createCategory(name: string) {
+        var slug = StringUtils.createSlug(name);
+
         const category = await Category.findOne({
-            where: {name}
+            where: {
+                [Op.or]: [
+                    { slug },
+                    { name }
+                ]
+            }
         })
         if (category) throw new BadRequestError('Thể loại đã tồn tại')
 
         return await Category.create({
-            name
+            name,
+            slug
         })
     }
 }

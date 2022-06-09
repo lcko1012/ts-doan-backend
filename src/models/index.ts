@@ -12,12 +12,11 @@ import User from './User';
 import Word from './Word';
 import UserCourse from './UserCourse';
 import UserTest from './UserTest';
-import Video from './Video';
+import Content from './Content';
 import Question from './Question';
 import Answer from './Answer';
 import Category from './Category';
 import WordKind from './WordKind';
-import Article from './Article';
 
 const sequelize = new Sequelize({
     database: process.env.DB_NAME,
@@ -39,8 +38,8 @@ const sequelize = new Sequelize({
 
 sequelize.addModels([
     User, PasswordResetToken, Word, Kind, Meaning, Idiom, Example,
-    Folder, Course, Lesson, Test, UserCourse, UserTest, Video,
-    Question, Answer, Category, WordKind, Article
+    Folder, Course, Lesson, Test, UserCourse, UserTest, Content,
+    Question, Answer, Category, WordKind
 ]);
 
 export default sequelize;

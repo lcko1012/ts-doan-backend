@@ -6,6 +6,9 @@ class Category extends Model {
     @Column
     name: string
 
+    @Column
+    slug: string
+
     @HasMany(() => Course, {
         onDelete: 'no action'
     })

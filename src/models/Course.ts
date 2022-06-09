@@ -53,7 +53,7 @@ class Course extends Model {
     lessons: Lesson[];
 
     //Student list
-    @BelongsToMany(() => User, () => UserCourse)
+    @BelongsToMany(() => User, () => UserCourse, 'userId')
     users: User[];
 
     //Teacher associated with this course
@@ -61,7 +61,7 @@ class Course extends Model {
     @Column
     teacherId: number;
 
-    @BelongsTo(() => User, 'fk_course_owner')
+    @BelongsTo(() => User, 'teacherId')
     teacher: User;
 
     @CreatedAt

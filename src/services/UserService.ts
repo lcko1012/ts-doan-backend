@@ -13,7 +13,6 @@ export default class UserService {
         const user = await this.userRepository.findByEmailAndActivated(email);
 
         if (!user) throw new NotFoundError("User not found");
-        console.log(user)
         return this.sanitizaUser(user);
     }
 

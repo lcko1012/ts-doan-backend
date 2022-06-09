@@ -3,7 +3,7 @@ import PageRequest from "dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
-import { Authorized, Body, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
+import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
 import CourseService from "services/CourseService";
 import { Service } from "typedi";
 
@@ -85,5 +85,35 @@ export default class CourseController {
     {
         const course = await this.courseService.getLessonOfCourse(user, courseId);
         return res.send(course)
+    }
+
+    //USER
+    @Get('/category/:slug')
+    async getByCategory(@Param('slug') slug: string, @Res() res: Response) {
+        const courses = await this.courseService.getCoursesByCategory(slug);
+        return res.send(courses);
+    }
+
+    @Get('/:slug')
+    async getCourse(
+        @Param('slug') slug: string,
+        @Res() res: Response
+    ) 
+    {
+        const course = await this.courseService.getCourse(slug);
+        return res.send(course)
+    }
+
+    @Post('/enroll')
+    @Authorized()
+    async enrollCourse(
+        @BodyParam('courseId') courseId: number,
+        @CurrentUser() user: IUserCredential)
+    {
+        if (!courseId) throw new BadRequestError('Không tìm thấy khóa học');
+        await this.courseService.enrollCourse(user, courseId);
+        return {
+            message: 'Đăng ký thành công'
+        }
     }
 }

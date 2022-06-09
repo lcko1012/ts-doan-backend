@@ -53,10 +53,10 @@ class User extends Model {
     @HasMany(() => Folder)
     folders?: Folder[];
 
-    @BelongsToMany(() => Course, () => UserCourse)
+    @BelongsToMany(() => Course, () => UserCourse, 'userId')
     courses?: Course[];
 
-    @HasMany(() => Course)
+    @HasMany(() => Course, 'teacherId')
     ownedCourses?: Course[];
 
     @BelongsToMany(() => Test, () => UserTest)

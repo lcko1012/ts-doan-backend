@@ -10,11 +10,12 @@ import { Op } from "sequelize";
 import IUserCredential from "interfaces/IUserCredential";
 import User from "models/User";
 import Lesson from "models/Lesson";
-import Video from "models/Video";
-import Article from "models/Article";
+import Content from "models/Content";
 import Word from "models/Word";
 import sequelize from "models";
 import { Sequelize } from "sequelize-typescript";
+import Category from "models/Category";
+import UserCourse from "models/UserCourse";
 
 
 @Service()
@@ -36,6 +37,7 @@ export default class CourseService {
             count: result.count
         }
     }
+
     async getCoursesByTeacher(teacherId: number) {
         return await this.courseRepository.getCoursesByTeacher(teacherId);
     }
@@ -108,8 +110,7 @@ export default class CourseService {
             include: [{
                 model: Lesson,
                 include: [
-                    { model: Video },
-                    { model: Article },
+                    { model: Content },
                     {
                         model: Word
                     }
@@ -120,6 +121,111 @@ export default class CourseService {
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
 
-        return course;
+        return {
+            ...course.toJSON(),
+            lessons: course.lessons.map(lesson => {
+                return {
+                    ...lesson.toJSON(),
+                    words: lesson.words.length,
+                }
+            })
+        };
+    }
+
+    //USER
+    async getCoursesByCategory(categorySlug: string) {
+        const category = await Category.findOne({
+            where: { slug: categorySlug }
+        })
+
+        if (!category) throw new NotFoundError('Không tìm thấy danh mục')
+
+        return await Course.findAll({
+            where: {
+                categoryId: category.id,
+                isPublic: true,
+            },
+            include: [{
+                model: User,
+                as: 'teacher',
+                attributes: ['id', 'name', 'email']
+            }],
+            order: [
+                ['rating', 'DESC']
+            ]
+        })
+    }
+
+    async getCourse(slug: string) {
+        const course = await Course.findOne({
+            where: { slug },
+            include: [{
+                model: Lesson,
+                attributes: ['id', 'name', 'slug'],
+                include: [{
+                    model: Content,
+                    attributes: ['id', 'name'],
+                }, {
+                    model: Word,
+                    attributes: ['id', 'vocab']
+                }]
+            }, {
+                model: User,
+                as: 'teacher',
+            }]
+        })
+
+        if (!course) throw new NotFoundError('Không tìm thấy khóa học')
+
+        return this.responseCourse(course);
+    }
+
+    async enrollCourse(user: IUserCredential, courseId: number) {
+        const course = await Course.findOne({
+            where: { id: courseId }
+        })
+
+        if (!course) throw new NotFoundError('Không tìm thấy khóa học')
+
+        const userCourse = await UserCourse.findOne({
+            where: {
+                userId: user.id,
+                courseId
+            }
+        })
+        //Check if user has enrolled course
+        if (userCourse) return course
+
+        if (course.isPublic) {
+            await UserCourse.create({
+                userId: user.id,
+                courseId
+            });
+            return course;
+        } else {
+            throw new ForbiddenError('Khóa học này không công khai')
+        }
+    }
+
+    private responseCourse(course: Course) {
+        return {
+            ...course.toJSON(),
+            lessons: course.lessons.map(lesson => {
+                return {
+                    id: lesson.id,
+                    name: lesson.name,
+                    slug: lesson.slug,
+                    contents: lesson.contents,
+                    words: lesson.words.length
+                }
+            }),
+            teacher: {
+                id: course.teacher.id,
+                name: course.teacher.name,
+                email: course.teacher.email,
+                avatarLink: course.teacher.avatarLink,
+            }
+            
+        }
     }
 }

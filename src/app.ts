@@ -35,6 +35,8 @@ export default class App {
     }
 
     private static async initDatabase() {
-        await sequelize.sync();
+        await sequelize.sync({
+            // force: true
+        });
     }
 }
