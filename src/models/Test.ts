@@ -6,13 +6,23 @@ import UserTest from "./UserTest";
 
 @Table
 export default class Test extends Model {
+    @Column
+    name: string;
+    
     @Column({
-        type: DataType.STRING(5)
+        type: DataType.INTEGER,
+        defaultValue: 30,
     })
     timeLimit: number;
    
-    @Column
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 100
+    })
     passingScore: number;
+
+    @Column
+    totalScore: number;
 
     @BelongsTo(() => Lesson)
     lesson: Lesson;

@@ -89,7 +89,10 @@ export default class CourseController {
 
     //USER
     @Get('/category/:slug')
-    async getByCategory(@Param('slug') slug: string, @Res() res: Response) {
+    async getByCategory(
+            @Param('slug') slug: string, 
+            @Res() res: Response
+    ) {
         const courses = await this.courseService.getCoursesByCategory(slug);
         return res.send(courses);
     }
@@ -97,10 +100,12 @@ export default class CourseController {
     @Get('/:slug')
     async getCourse(
         @Param('slug') slug: string,
+        @CurrentUser({required: false}) user: IUserCredential,
         @Res() res: Response
     ) 
     {
-        const course = await this.courseService.getCourse(slug);
+        const loggedIntId = user?.id
+        const course = await this.courseService.getCourse(slug, loggedIntId);
         return res.send(course)
     }
 

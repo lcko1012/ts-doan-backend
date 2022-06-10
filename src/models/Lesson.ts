@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Index, Model, Table }
 import Course from "./Course";
 import Content from "./Content";
 import Word from "./Word";
+import Test from "./Test";
 
 @Table
 export default class Lesson extends Model {
@@ -32,4 +33,7 @@ export default class Lesson extends Model {
 
     @BelongsTo(() => Course)
     course: Course;
+
+    @HasMany(() => Test)
+    tests: Test[];
 }

@@ -16,6 +16,7 @@ import sequelize from "models";
 import { Sequelize } from "sequelize-typescript";
 import Category from "models/Category";
 import UserCourse from "models/UserCourse";
+import Test from "models/Test";
 
 
 @Service()
@@ -113,7 +114,7 @@ export default class CourseService {
                     { model: Content },
                     {
                         model: Word
-                    }
+                    }, {model: Test}
                 ]
             }],
             attributes: ['id', 'slug', 'isPublic', 'teacherId']
@@ -156,7 +157,7 @@ export default class CourseService {
         })
     }
 
-    async getCourse(slug: string) {
+    async getCourse(slug: string, loggedInId: number | undefined) {
         const course = await Course.findOne({
             where: { slug },
             include: [{
@@ -164,10 +165,13 @@ export default class CourseService {
                 attributes: ['id', 'name', 'slug'],
                 include: [{
                     model: Content,
-                    attributes: ['id', 'name'],
+                    attributes: ['id', 'name', 'type'],
                 }, {
                     model: Word,
                     attributes: ['id', 'vocab']
+                }, {
+                    model: Test,
+                    attributes: ['id', 'timeLimit']
                 }]
             }, {
                 model: User,
@@ -176,8 +180,20 @@ export default class CourseService {
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
+        console.log(course.toJSON())
+        const responseCourse = this.responseCourse(course);
 
-        return this.responseCourse(course);
+        if (loggedInId) {
+            const userCourse = await UserCourse.findOne({
+                where: {courseId: course.id, userId: loggedInId}
+            })
+
+            if (userCourse) {
+                responseCourse.isEnrolled = true;
+            }
+        }
+
+        return responseCourse;
     }
 
     async enrollCourse(user: IUserCredential, courseId: number) {
@@ -216,7 +232,8 @@ export default class CourseService {
                     name: lesson.name,
                     slug: lesson.slug,
                     contents: lesson.contents,
-                    words: lesson.words.length
+                    words: lesson.words.length,
+                    tests: lesson.tests,
                 }
             }),
             teacher: {
@@ -225,7 +242,6 @@ export default class CourseService {
                 email: course.teacher.email,
                 avatarLink: course.teacher.avatarLink,
             }
-            
         }
     }
 }

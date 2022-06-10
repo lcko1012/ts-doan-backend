@@ -78,12 +78,7 @@ export default class LessonService {
     }
 
     public async getFlashcard(lessonId: number, user: IUserCredential) {
-        const lesson = await Lesson.findOne({
-            where: {id: lessonId},
-            include: [{model: Course, where: {teacherId: user.id}}]
-        })
-
-        if (!lesson) throw new NotFoundError('Bài học không tồn tại')
+        const lesson = await this.findLessonByIdAndTeacherId(lessonId, user.id);
         
         const words = await Word.findAll({
             where: { lessonId: lesson.id },
@@ -100,5 +95,26 @@ export default class LessonService {
         })
 
         return words;
+    }
+
+    public async delete(lessonId: number, user: IUserCredential) {
+        const lesson = await this.findLessonByIdAndTeacherId(lessonId, user.id);
+        await lesson.destroy();
+    }
+
+    public async updateName(lessonId: number , name: string, user: IUserCredential) {
+        const lesson = await this.findLessonByIdAndTeacherId(lessonId, user.id);
+        lesson.name = name;
+        await lesson.save();
+    }
+
+
+    public async findLessonByIdAndTeacherId(lessonId: number, teacherId: number) {
+        const lesson = await Lesson.findOne({
+            where: {id: lessonId},
+            include: [{model: Course, where: {teacherId}}]
+        })
+        if (!lesson) throw new NotFoundError('Bài học không tồn tại')   
+        return lesson;
     }
 }
