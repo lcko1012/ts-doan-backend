@@ -1,5 +1,6 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import Lesson from "./Lesson";
+import Question from "./Question";
 import User from "./User";
 import UserTest from "./UserTest";
 
@@ -33,4 +34,7 @@ export default class Test extends Model {
 
     @BelongsToMany(() => User, () => UserTest)
     users: User[];
+
+    @HasMany(() => Question)
+    questions: Question[];
 }

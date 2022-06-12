@@ -1,6 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import Test from "./Test";
 import QuestionType from "./QuestionType";
+import Answer from "./Answer";
 
 @Table
 export default class Question extends Model {
@@ -15,13 +16,16 @@ export default class Question extends Model {
     })
     type: QuestionType;
 
-    @Column
+    @Column({
+        defaultValue: 0,
+        type: DataType.DOUBLE
+    })
     score: number;
 
     @Column
     imageLink: string;
 
-    @Column 
+    @Column
     audioLink: string;
 
     @BelongsTo(() => Test)
@@ -30,4 +34,7 @@ export default class Question extends Model {
     @ForeignKey(() => Test)
     @Column
     testId: number;
+
+    @HasMany(() => Answer)
+    answers: Answer[];
 }
