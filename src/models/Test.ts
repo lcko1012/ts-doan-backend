@@ -17,12 +17,14 @@ export default class Test extends Model {
     timeLimit: number;
    
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.DOUBLE,
         defaultValue: 100
     })
     passingScore: number;
 
-    @Column
+    @Column({
+        type: DataType.DOUBLE
+    })
     totalScore: number;
 
     @BelongsTo(() => Lesson)

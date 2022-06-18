@@ -55,5 +55,4 @@ export default class QuestionController {
             message: 'Cập nhật câu hỏi thành công'
         })
     }
-
 }

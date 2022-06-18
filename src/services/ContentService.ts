@@ -3,6 +3,7 @@ import IUserCredential from "interfaces/IUserCredential";
 import Content from "models/Content";
 import Course from "models/Course";
 import Lesson from "models/Lesson";
+import UserCourse from "models/UserCourse";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 
@@ -83,6 +84,42 @@ export default class ContentService {
     async delete(id: number, user: IUserCredential) {
         const content = await this.findContentByIdAndTeacherId(id, user.id)
         await content.destroy()
+    }
+
+    async getByStudent(id: number, user: IUserCredential) { 
+        //1. check if user in course
+        const content = await Content.findOne({
+            where: {id},
+            include: [{
+                model: Lesson,    
+            }]
+        })
+
+        if (!content) throw new NotFoundError('Bài học không tồn tại');
+
+        await this.checkIfStudentInCourse(user.id, content.lesson.courseId)
+
+        return {
+            id: content.id,
+            name: content.name,
+            type: content.type,
+            path: content.path,
+            content: content.content,
+            lessonId: content.lessonId,
+        }
+    }
+
+    private async checkIfStudentInCourse(userId: number, courseId: number) {
+        const enrolled = await UserCourse.findOne({
+            where: {
+                userId,
+                courseId
+            }
+        })
+
+        if (!enrolled) throw new BadRequestError('Bạn chưa đăng ký khóa học này')
+
+        return enrolled;
     }
 
     private async findContentByIdAndTeacherId(id: number, teacherId: number) {

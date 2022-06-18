@@ -6,15 +6,21 @@ import Course from "./Course";
     tableName: "user_course"
 })
 class UserCourse extends Model {
+    @Column({
+        primaryKey: true,
+        autoIncrement: true
+    })
+    id: number
+
     @ForeignKey(() => User)
     @Column({
-        primaryKey: true
+        unique: false
     })
     userId: number;
 
     @ForeignKey(() => Course)
     @Column({
-        primaryKey: true
+        unique: false
     })
     courseId: number;
 

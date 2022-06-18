@@ -1,4 +1,4 @@
-import QuestionUpdateDto, {QuestionCreateDto} from "dto/QuestionDto";
+import QuestionUpdateDto, { QuestionCreateDto } from "dto/QuestionDto";
 import IUserCredential from "interfaces/IUserCredential";
 import sequelize from "models";
 import Answer from "models/Answer";
@@ -11,24 +11,21 @@ import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 
 @Service()
-export default class QuestionService { 
-    constructor(){}
+export default class QuestionService {
+    constructor() { }
 
-    async getListByTeacher(lessonId: number, 
+    async getListByTeacher(lessonId: number,
         testId: number, teacher: IUserCredential) {
-       
+
         await this.findTestByLessonIdAndTeacherId(lessonId, testId, teacher.id)
-        
+
         const questions = await Question.findAll({
-            where: {testId},
+            where: { testId },
             include: [{
                 model: Answer,
-                order: [[ 'id', 'ASC']]
             }],
-            subQuery: true,
+            order: [['id', 'ASC'], ['answers', 'id', 'ASC']]
         })
-
-        console.log(questions[0].answers)
 
         return questions
     }
@@ -49,54 +46,39 @@ export default class QuestionService {
 
         try {
             const existedQuestion = await Question.findOne({
-                where: {id: questionId}
+                where: { id: questionId }
             })
-            
+
             if (!existedQuestion) throw new NotFoundError('Câu hỏi không tồn tại')
 
-            
             await sequelize.transaction(async transaction => {
                 await existedQuestion.update({
                     content: question.content,
                     score: question.score,
                     imageLink: question.imageLink,
                     audioLink: question.audioLink,
-                })
-    
+                }, { transaction })
+
                 await Answer.destroy({
-                    where: {questionId},
+                    where: { questionId },
                     transaction
                 })
-                
+
                 for (const answer of question.answers) {
                     await Answer.create({
                         content: answer.content.trim(),
                         correct: answer.correct,
                         questionId: existedQuestion.id
-                    }, {transaction})
-
-                    // const existedAnswer = await Answer.findOne({
-                    //     where: {
-                    //         id: answer.id ? answer.id : null,
-                    //         questionId: answer.questionId
-                    //     }  
-                    // })
-
-                    // if (existedAnswer) {
-                    //     await existedAnswer.update({
-                    //         content: answer.content.trim(),
-                    //         correct: answer.correct,
-                    //         questionId: existedQuestion.id
-                    //     }, {transaction})
-                    // }
-                    // else {
-                    //     await Answer.create({
-                    //         content: answer.content.trim(),
-                    //         correct: answer.correct,
-                    //         questionId: existedQuestion.id
-                    //     }, {transaction})
-                    // }
+                    }, { transaction })
                 }
+
+                // update test total score
+                const totalScore = await Question.sum('score', {
+                    where: { testId: question.testId }
+                })
+                await Test.update({
+                    totalScore: totalScore
+                }, { where: { id: question.testId }, transaction })
             })
         } catch (err) {
             console.log(err)
@@ -104,22 +86,36 @@ export default class QuestionService {
         }
     }
 
+    async getQuestionsByTestId(testId: number) {
+        const questions = await Question.findAll({
+            where: { testId },
+            include: [{
+                model: Answer,
+            }],
+            order: [['id', 'ASC'], ['answers', 'id', 'ASC']]
+        })
+
+        return questions
+    }
+
     private async findTestByLessonIdAndTeacherId(lessonId: number, testId: number, teacherId: number) {
         const test = await Test.findOne({
-            where: {id: testId},
+            where: { id: testId },
             include: [{
                 model: Lesson,
-                where: {id: lessonId},
+                where: { id: lessonId },
                 attributes: [],
                 include: [{
                     model: Course,
-                    where: {teacherId},
+                    where: { teacherId },
                     attributes: []
                 }]
             }]
         })
 
         if (!test) throw new NotFoundError('Bài kiểm tra không tồn tại')
+
+        return test;
     }
 
 

@@ -191,4 +191,14 @@ export default class WordController {
             message: "Xóa thành công"
         }
     }
+
+    @Get('/lesson/:lessonId/student')
+    async getWordsOfLessonByStudent(
+        @Param('lessonId') lessonId: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response
+    ){
+        const words = await this.wordService.getWordsOfLessonByStudent(lessonId, user);
+        return res.send(words)
+    }
 }

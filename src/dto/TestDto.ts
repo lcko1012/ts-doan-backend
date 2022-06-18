@@ -20,3 +20,17 @@ export class TestUpdateDto extends TestCreateDto {
     @Min(1)
     passingScore: number;
 }
+
+class QuestionSubmit {
+    @IsNotEmpty()
+    questionId: number;
+    answerId: number;
+    answerContent: string;
+}
+
+export class TestSubmitDto {
+    id: number;
+    lessonId: number;
+    @IsNotEmpty()
+    questions: QuestionSubmit[];
+}

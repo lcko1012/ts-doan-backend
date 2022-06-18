@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { HttpError, NotFoundError, UnauthorizedError, ForbiddenError } from "routing-controllers";
+import { HttpError, NotFoundError, UnauthorizedError, ForbiddenError, Param, CurrentUser, BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 import CourseRepository from "repository/CourseRepository";
 import Course from "models/Course";
@@ -117,7 +117,13 @@ export default class CourseService {
                     }, {model: Test}
                 ]
             }],
-            attributes: ['id', 'slug', 'isPublic', 'teacherId']
+            attributes: ['id', 'slug', 'isPublic', 'teacherId'],
+            order: [
+                ['id', 'ASC'],
+                ['lessons', 'id', 'ASC'],
+                ['lessons', 'contents', 'id', 'ASC'],
+                ['lessons', 'tests', 'id', 'ASC']
+            ]
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
@@ -171,16 +177,21 @@ export default class CourseService {
                     attributes: ['id', 'vocab']
                 }, {
                     model: Test,
-                    attributes: ['id', 'timeLimit']
-                }]
+                    attributes: ['id', 'name', 'timeLimit']
+                }],
             }, {
                 model: User,
                 as: 'teacher',
-            }]
+            }],
+            order: [
+                ['lessons', 'createdAt', 'ASC'],
+                ['lessons', 'tests', 'id', 'ASC'],
+                ["lessons", "contents", 'id', 'ASC'],
+
+            ]
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
-        console.log(course.toJSON())
         const responseCourse = this.responseCourse(course);
 
         if (loggedInId) {
@@ -197,21 +208,17 @@ export default class CourseService {
     }
 
     async enrollCourse(user: IUserCredential, courseId: number) {
+        console.log(user)
         const course = await Course.findOne({
-            where: { id: courseId }
+            where: { id: courseId, }
         })
 
         if (!course) throw new NotFoundError('Không tìm thấy khóa học')
 
-        const userCourse = await UserCourse.findOne({
-            where: {
-                userId: user.id,
-                courseId
-            }
-        })
+        const userCourse = await this.checkUserEnrolledCourse(user.id, courseId);
         //Check if user has enrolled course
+        console.log(userCourse)
         if (userCourse) return course
-
         if (course.isPublic) {
             await UserCourse.create({
                 userId: user.id,
@@ -221,6 +228,17 @@ export default class CourseService {
         } else {
             throw new ForbiddenError('Khóa học này không công khai')
         }
+    }
+
+    async checkUserEnrolledCourse(userId: number, courseId: number) {
+        const userCourse = await UserCourse.findOne({
+            where: {
+                userId: userId,
+                courseId
+            }
+        })
+
+        return userCourse
     }
 
     private responseCourse(course: Course) {

@@ -1,4 +1,4 @@
-import TestCreateDto, { TestUpdateDto } from "dto/TestDto";
+import TestCreateDto, { TestSubmitDto, TestUpdateDto } from "dto/TestDto";
 import IUserCredential from "interfaces/IUserCredential";
 import { Authorized, Body, CurrentUser, Get, HttpCode, JsonController, Param, Params, Post, Put, Res } from "routing-controllers";
 import TestService from "services/TestService";
@@ -50,4 +50,31 @@ export default class TestController {
             message: 'Cập nhật thành công'
         };
     }
+
+    @Get('/:id/course/:courseSlug/student')
+    @Authorized('ROLE_USER')
+    async getTestWithQuestionsByStudent(
+        @Param('id') id: number,
+        @Param('courseSlug') courseSlug: string,
+        @CurrentUser() student: IUserCredential,
+        @Res () res: Response
+    ){
+        const test = await this.testService.getTestWithQuestionsByStudent(courseSlug, id, student);
+
+        return res.send(test)
+    }
+
+    //submit test
+    @Post('/submit/course/:courseSlug/student')
+    @Authorized('ROLE_USER')
+    async submitTest(
+        @Param('courseSlug') courseSlug: string,
+        @Body() testSubmit: TestSubmitDto,
+        @CurrentUser() student: IUserCredential,
+        @Res () res: Response
+    ){
+        const result = await this.testService.submitTestByStudent(courseSlug,testSubmit.id, student, testSubmit);
+        return res.send(result);
+    }
+
 } 

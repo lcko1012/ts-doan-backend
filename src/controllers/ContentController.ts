@@ -65,4 +65,18 @@ export default class ContentController {
         await this.contentService.delete(id, user);
         return res.status(StatusCodes.OK).send()
     }
+
+    @Get('/:id/student')
+    @Authorized('ROLE_USER')
+    async getByStudent(
+        @Param('id') id: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response
+    ){
+        const content = await this.contentService.getByStudent(id, user);
+        return res.send(content);
+    }
+
+    
+
 }

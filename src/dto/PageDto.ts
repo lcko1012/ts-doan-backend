@@ -30,4 +30,7 @@ export default class PageRequest {
     @IsOptional()
     topicId: number;
 
+    @IsOptional()
+    folderName: string;
+
 }

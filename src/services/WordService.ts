@@ -11,12 +11,12 @@ import Example from "models/Example";
 import Kind from "models/Kind";
 import Meaning from "models/Meaning";
 import Idiom from "models/Idiom";
-import { KindType } from "interfaces/Word";
 import WordKind from "models/WordKind";
 import IUserCredential from "interfaces/IUserCredential";
 import Course from "models/Course";
 import Lesson from "models/Lesson";
 import LessonService from "./LessonService";
+import UserCourse from "models/UserCourse";
 
 @Service()
 export default class WordService {
@@ -112,7 +112,7 @@ export default class WordService {
     }
 
     public async getById(id: number) {
-        const word = await this.wordRepository.findById(id);
+        const word = await this.wordRepository.getById(id, null);
         if (!word) throw new NotFoundError("Từ vựng không tồn tại");
 
         return word;
@@ -254,11 +254,11 @@ export default class WordService {
             await sequelize.transaction(async transaction => {
                 const newWord = await Word.create({
                     vocab: word.vocab,
-                        phonetic: word.phonetic,
-                        audios: word.audios,
-                        imageLink: word.imageLink,
-                        lessonId: lesson.id,
-                },{transaction})
+                    phonetic: word.phonetic,
+                    audios: word.audios,
+                    imageLink: word.imageLink,
+                    lessonId: lesson.id,
+                }, { transaction })
 
                 for (const wordKind of word.wordKinds) {
                     const newhaha = await WordKind.create({
@@ -328,12 +328,50 @@ export default class WordService {
 
     public async deleteWordInLessonByTeacher(lessonId: number, courseId: number, wordId: number, user: IUserCredential) {
         const lesson = await this.lessonService.getLessonInCourseById(lessonId, courseId, user)
-        
+
         const word = await Word.findOne({
             where: { id: wordId, lessonId: lesson.id }
         })
         if (!word) throw new NotFoundError('Từ vựng không tồn tại trong bài học')
 
         await Word.destroy({ where: { id: wordId, lessonId: lesson.id } })
+    }
+
+    public async getWordsOfLessonByStudent(lessonId: number, user: IUserCredential) {
+        //1. check if lesson is existed
+        const lesson = await Lesson.findOne({
+            where: { id: lessonId },
+            include: [{
+                model: Course,
+                where: {isPublic: true},
+            }]
+        })
+
+        if (!lesson) throw new NotFoundError('Bài học không tồn tại')
+        //2. check if user is student
+        const userId = user.id
+        const enrolled = await UserCourse.findOne({
+            where: {
+                userId,
+                courseId: lesson.courseId
+            }
+        })
+
+        if (!enrolled) throw new BadRequestError('Bạn chưa đăng ký khóa học này')
+
+        //3. get words of lesson
+        const words = await Word.findAll({
+            where: { lessonId: lesson.id },
+            include: [{
+                model: WordKind,
+                include: [
+                    {model: Kind},
+                    {model: Meaning, include: [{model: Example}]},
+                    {model: Idiom}
+                ]
+            }]
+        })
+
+        return words
     }
 }

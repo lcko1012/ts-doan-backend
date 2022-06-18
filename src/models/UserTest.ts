@@ -7,10 +7,20 @@ import User from "./User";
     tableName: "user_test"
 })
 export default class UserTest extends Model {
-    @Column
+    @Column({
+        primaryKey: true,
+        autoIncrement: true
+    })
+    id: number;
+    
+    @Column({
+        type: DataType.DOUBLE
+    })
     score: number;
 
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     details: string;
 
     @ForeignKey(() => User)

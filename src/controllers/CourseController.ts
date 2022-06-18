@@ -121,4 +121,14 @@ export default class CourseController {
             message: 'Đăng ký thành công'
         }
     }
+
+    @Get('/:slug/student')
+    @Authorized('ROLE_USER')
+    async getCourseWithLessonsByStudent(
+        @Param('slug') slug: string,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response
+    ) {
+        
+    }
 }
