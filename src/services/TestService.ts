@@ -165,7 +165,8 @@ export default class TestService {
             userId: student.id,
             testId: test.id,
             score,
-            details: JSON.stringify(details)
+            details: JSON.stringify(details),
+            isPass: score >= test.passingScore,
         }
 
         const testResult = await UserTest.create(result);

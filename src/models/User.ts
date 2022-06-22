@@ -44,6 +44,7 @@ class User extends Model {
     })
     role: Role;
 
+
     @Column(DataType.STRING)
     registerToken: string | null;
 
@@ -61,6 +62,9 @@ class User extends Model {
 
     @BelongsToMany(() => Test, () => UserTest)
     tests?: Test[];
+
+    @HasMany(() => UserTest)
+    userTests?: UserTest[];
 }
 
 export default User;

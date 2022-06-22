@@ -32,5 +32,26 @@ export default class PageRequest {
 
     @IsOptional()
     folderName: string;
+}
 
+export class UserTestRequestDto {
+    @IsNotEmpty()
+    @Min(0, {message: "Size must be greater than or equal to 0"})
+    size: number;
+
+    @IsNotEmpty()
+    @Min(0, {message: "Page number must be greater than or equal to 0"})
+    page: number;
+
+    @IsOptional()
+    name?: string;
+
+    @IsOptional()
+    createdAt?: string;
+    
+    @IsOptional()
+    isPass?: string;
+    
+    @IsOptional()
+    scoreOrder?: string;
 }

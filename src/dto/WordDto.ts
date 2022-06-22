@@ -130,3 +130,8 @@ export interface KindType {
   meanings: MeaningType[],
   idioms: IdiomType[]
 }
+
+export class ExistedMeaningAddToFolder {
+  @IsNotEmpty({message: "Meaning Id không được để trống" })
+  meaningId: number;
+}

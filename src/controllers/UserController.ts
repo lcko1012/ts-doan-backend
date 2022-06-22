@@ -1,6 +1,6 @@
 import UserService from "../services/UserService";
 import { Service } from "typedi";
-import { Authorized, CurrentUser, Get, HttpCode, JsonController, Params, Res } from "routing-controllers";
+import { Authorized, CurrentUser, Get, HttpCode, JsonController, Params, QueryParams, Res } from "routing-controllers";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
 import {Response} from 'express'
@@ -44,10 +44,12 @@ export default class UserController {
     @Get('/user/folder')
     @Authorized()
     async getWithFolders(
-        @Params() pageRequest: PageRequest,
+        @QueryParams() pageRequest: PageRequest,
         @CurrentUser() currentUser: IUserCredential,
         @Res() res: Response
     ){
-        
+        console.log(pageRequest)
+        const result = await this.userService.getWithFolders(currentUser.id, pageRequest);
+        return res.send(result);
     }
 }

@@ -77,4 +77,16 @@ export default class TestController {
         return res.send(result);
     }
 
+    @Get('/:id/result/lesson/:lessonId/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getResultListByTeacher(
+        @Param('id') id: number,
+        @Param('lessonId') lessonId: number,
+        @CurrentUser() teacher: IUserCredential,
+        @Res () res: Response
+    ){
+        const result = await this.testService.getResultListByTeacher(id, lessonId, teacher);
+        return res.send(result)
+    }
+
 } 

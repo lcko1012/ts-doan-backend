@@ -193,12 +193,28 @@ export default class WordController {
     }
 
     @Get('/lesson/:lessonId/student')
+    @Authorized()
     async getWordsOfLessonByStudent(
         @Param('lessonId') lessonId: number,
         @CurrentUser() user: IUserCredential,
         @Res() res: Response
     ){
         const words = await this.wordService.getWordsOfLessonByStudent(lessonId, user);
+        return res.send(words)
+    }
+
+    @Post('/exist/folder/:folderId/user')
+    @Authorized()
+    async addExistedWordToFolder(
+        @Param('folderId') folderId: number,
+        @BodyParam('meaningId') meaningId: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response
+
+    ){
+        if (!meaningId) throw new BadRequestError('Không có id nghĩa')
+        const words = await this.wordService.addExistedWordToFolder(folderId, meaningId, user);
+
         return res.send(words)
     }
 }

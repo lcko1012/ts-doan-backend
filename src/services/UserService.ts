@@ -8,6 +8,8 @@ import Lesson from "models/Lesson";
 import PageRequest from "dto/PageDto";
 import { Op } from "sequelize";
 import Folder from "models/Folder";
+import Word from "models/Word";
+import UserTest from "models/UserTest";
 
 @Service()
 export default class UserService {
@@ -41,9 +43,27 @@ export default class UserService {
     }
 
     public async getWithTests(userId: number) {
-        const result = await User.findOne({
-            where: {id: userId},
-            attributes: [],
+        // const result = await User.findOne({
+        //     where: {id: userId},
+        //     attributes: [],
+        //     include: [{
+        //         model: UserTest,
+        //         include: [{
+        //             model: Test,
+        //         }]
+        //         // include: [{
+        //         //     model: Lesson,
+        //         //     attributes: ['name'],
+        //         //     include: [{
+        //         //         model: Course,
+        //         //         attributes: ['name']
+        //         //     }]
+        //         // }]
+        //     }]
+        // })
+
+        const result = await UserTest.findAll({
+            where: {userId},
             include: [{
                 model: Test,
                 include: [{
@@ -57,26 +77,56 @@ export default class UserService {
             }]
         })
 
+        // const result = await UserTest.findAll({
+        //     where: {userId},
+        //     include: [{
+        //         model: Test,
+        //         include: [{
+        //             model: Lesson,
+        //             attributes: ['name'],
+        //             include: [{
+        //                 model: Course,
+        //                 attributes: ['name']
+        //             }]
+        //         }]
+        //     }]
+        // })
+
     
-        return [...result.tests];
+        return result
     }
 
     public async getWithFolders(userId: number, pageRequest: PageRequest) {
         const {folderName} = pageRequest;
-        const folderNameCondition = folderName ? {name: {[Op.like]: `${folderName}%`}} : {};
+        console.log(folderName)
+        const folderNameCondition = folderName ? {name: {[Op.like]: `${folderName}%`}} : null;
+        console.log(folderNameCondition)
         const result = await User.findOne({
             where: {id: userId},
-            attributes: [],
+            // attributes: [],
             include: [{
                 model: Folder,
-                as: 'folders',
+                // as: 'folders',
                 where: folderNameCondition,
+                include: [{
+                    model: Word,
+                    as: 'words',
+                }]
 
             }],
             order: [['folders', 'createdAt', 'DESC']],
         })
 
-        return [...result.folders];
+
+        const folders = [...result.toJSON().folders];
+        
+        // count total words in folders and delete words
+        folders.forEach(folder => {
+            folder.wordCount = folder.words.length;
+            delete folder.words;
+        })
+
+        return folders
     }
 
     private sanitizaUser(user: User) {

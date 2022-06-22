@@ -23,11 +23,23 @@ export default class UserTest extends Model {
     })
     details: string;
 
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isPass: boolean;
+
     @ForeignKey(() => User)
     @Column
     userId: number;
 
+    @BelongsTo(() => User)
+    user: User;
+
     @ForeignKey(() => Test)
     @Column
     testId: number;
+
+    @BelongsTo(() => Test)
+    test: Test;
 }

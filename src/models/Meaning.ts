@@ -39,13 +39,6 @@ class Meaning extends Model {
         onDelete: 'CASCADE',
     })
     wordKind: WordKind;
-
-    // @ForeignKey(() => Kind)
-    // @Column
-    // kindId: number;
-
-    // @BelongsTo(() => Kind)
-    // kind: Kind;
 }
 
 export default Meaning;

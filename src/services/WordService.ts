@@ -374,4 +374,61 @@ export default class WordService {
 
         return words
     }
+
+    async addExistedWordToFolder (folderId: number, meaningId: number, user: IUserCredential) {
+        const wordKind = await WordKind.findOne({
+            include: [{
+                model: Meaning,
+                attributes: ['name'],
+                where: {id: meaningId},
+                include: [{
+                    model: Example,
+                    attributes: ['mean', 'sentence']
+                }]
+            }]
+        })
+
+        if (!wordKind) throw new NotFoundError('Từ vựng không tồn tại')
+
+        const word = await Word.findOne({
+            where: {
+                id: wordKind.wordId,
+                folderId: null,
+                lessonId: null
+            }
+        })
+
+        if (!word) throw new NotFoundError('Từ vựng không tồn tại')
+
+        try {
+            await sequelize.transaction(async transaction => {
+                const newWord = await Word.create({
+                    vocab: word.vocab,
+                    phonetic: word.phonetic,
+                    audios: word.audios,
+                    imageLink: word.imageLink,
+                    folderId: folderId,
+                }, { transaction })
+                
+                const newWordKind = await WordKind.create({
+                    wordId: newWord.id,
+                    kindId: wordKind.kindId,
+                    meanings: wordKind.meanings,                    
+                }, {
+                    include: [{
+                        model: Meaning,
+                        include: [{ model: Example }]
+                    }],
+                    transaction,
+                })
+                return newWordKind
+            })
+
+            // const result = await this.wordRepository.getByVocab(word.vocab, lesson.id)
+            
+        } catch (err) {
+            console.log(err)
+            throw new BadRequestError('Đã có lỗi xảy ra')
+        }
+    }
 }

@@ -37,6 +37,9 @@ export default class Test extends Model {
     @BelongsToMany(() => User, () => UserTest)
     users: User[];
 
+    @HasMany(() => UserTest)
+    userTests: UserTest[];
+
     @HasMany(() => Question)
     questions: Question[];
 }
