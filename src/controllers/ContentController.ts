@@ -24,9 +24,9 @@ export default class ContentController {
         if (body.type === 'CONTENT_VIDEO' && !body.path) throw new BadRequestError('Bạn chưa chọn video');
         else if (body.type === 'CONTENT_ARTICLE' && !body.content) throw new BadRequestError('Bạn chưa viết bài');
 
-        await this.contentService.create(body, user);
+        const result = await this.contentService.create(body, user);
 
-        return res.status(StatusCodes.CREATED).send()
+        return res.status(StatusCodes.CREATED).send(result)
     }
 
     @Put('/:id/teacher')
@@ -76,7 +76,4 @@ export default class ContentController {
         const content = await this.contentService.getByStudent(id, user);
         return res.send(content);
     }
-
-    
-
 }

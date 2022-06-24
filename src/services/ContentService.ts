@@ -23,20 +23,22 @@ export default class ContentService {
         if (!lesson) throw new NotFoundError('Bài học không tồn tại');
 
         if (body.type === 'CONTENT_VIDEO' && body.path) {
-            await Content.create({
+            const result = await Content.create({
                 name: body.name,
                 path: body.path,
                 lessonId: body.lessonId,
                 type: body.type,
             })
+            return result
         }
         else if (body.type === 'CONTENT_ARTICLE' && body.content) {
-            await Content.create({
+            const result = await Content.create({
                 name: body.name,
                 content: body.content,
                 lessonId: body.lessonId,
                 type: body.type,
             })
+            return result
         }
         else throw new BadRequestError('Bạn điền thiếu tham số')
     }

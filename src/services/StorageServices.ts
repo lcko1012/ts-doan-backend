@@ -8,7 +8,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME
 const REGION = process.env.REGION
 const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY
-
+const BUKCET_PRIVATE_NAME = process.env.BUCKET_PRIVATE_NAME
 const CLOUDFONT_DOMAIN_NAME = process.env.CLOUDFONT_DOMAIN_NAME
 
 @Service()
@@ -36,5 +36,15 @@ export default class StorageService {
         await this.s3.upload(uploadParams).promise();
 
         return `${CLOUDFONT_DOMAIN_NAME}/${key}`;
+    }
+
+    public async getSignedURL(fileName: string){
+        var params = {
+            Bucket: BUKCET_PRIVATE_NAME,
+            Key: fileName,
+        }
+        const presignedUrl = this.s3.getSignedUrl("getObject", params);
+        
+        return presignedUrl
     }
 }
