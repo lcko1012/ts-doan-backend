@@ -1,6 +1,7 @@
 import { AllowNull, BelongsToMany, Column, DataType, HasMany, HasOne, Index, Model, Table } from "sequelize-typescript";
 import Course from "./Course";
 import Folder from "./Folder";
+import Message from "./Message";
 import PasswordResetToken from "./PasswordResetToken";
 import Role from "./Role";
 import Test from "./Test";
@@ -65,6 +66,12 @@ class User extends Model {
 
     @HasMany(() => UserTest)
     userTests?: UserTest[];
+
+    @HasMany(() => Message, 'senderId')
+    sentMessages: Message[];
+
+    @HasMany(() => Message, 'receiverId')
+    receivedMessage: Message[];
 }
 
 export default User;
