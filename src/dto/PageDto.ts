@@ -55,3 +55,22 @@ export class UserTestRequestDto {
     @IsOptional()
     scoreOrder?: string;
 }
+
+export class UserListInCourse {
+    @IsNotEmpty()
+    @Min(0, {message: "Size must be greater than or equal to 0"})
+    size: number;
+
+    @IsNotEmpty()
+    @Min(0, {message: "Page number must be greater than or equal to 0"})
+    page: number;
+
+    @IsOptional()
+    name?: string;
+
+    @IsOptional()
+    email?: string;
+    
+    @IsOptional()
+    joinedDate?: string;
+}

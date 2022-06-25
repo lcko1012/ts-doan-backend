@@ -1,6 +1,7 @@
 import sequelize from "models";
 import Course from "models/Course";
 import Lesson from "models/Lesson";
+import { Op } from "sequelize";
 import { Service } from "typedi";
 
 @Service()
@@ -41,10 +42,13 @@ export default class CourseRepository {
         return courses;
     }
 
-    public async getCoursesByTeacher(teacherId: number) {
+    public async getCoursesByTeacher(teacherId: number, nameCondition: any) {
         return await Course.findAll({
             where: {
-                teacherId
+                [Op.and]: [
+                    {teacherId},
+                    nameCondition
+                ]
             },
             attributes: [
                 'id', 'name', 'imageLink', 

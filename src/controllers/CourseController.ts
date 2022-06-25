@@ -1,5 +1,5 @@
 import { CourseUpdateBasicDto, CouseCreatingDto } from "dto/CourseDto";
-import PageRequest from "dto/PageDto";
+import PageRequest, { UserListInCourse } from "dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
@@ -17,12 +17,12 @@ export default class CourseController {
     @Get('/teacher')
     @Authorized('ROLE_TEACHER')
     async getCoursesByTeacher(
-        @QueryParams() pageRequest: PageRequest, 
+        @QueryParam('courseName') courseName: string, 
         @CurrentUser() user: IUserCredential,
         @Res() res: Response) 
     {   
         const {id} = user;
-        const courses = await this.courseService.getCoursesByTeacher(id);
+        const courses = await this.courseService.getCoursesByTeacher(id, courseName);
         return res.send(courses);
     }
 
@@ -38,6 +38,18 @@ export default class CourseController {
         return res.status(StatusCodes.CREATED).send({
             message: "Tạo khóa học thành công"
         });
+    }
+
+    @Delete('/:id/teacher')
+    @Authorized('ROLE_TEACHER')
+    async deleteByTeacher(
+        @CurrentUser() user: IUserCredential,
+        @Param('id') id: number
+    ){
+        await this.courseService.deleteByTeacher(user, id);
+        return {
+            message: 'Xóa khóa học thành công'
+        }
     }
 
     @Get('/:slug/edit/teacher')
@@ -87,6 +99,21 @@ export default class CourseController {
         return res.send(course)
     }
 
+    @Get('/:courseId/student/teacher')
+    @Authorized('ROLE_TEACHER')
+    async getStudentsInCourse(
+        @CurrentUser() user: IUserCredential,
+        @Param('courseId') courseId: number,
+        @QueryParams() params: UserListInCourse, 
+        @Res() res: Response
+    ){
+        const result = await this.courseService.getStudents(user, courseId, params);
+        return res.send({
+            count: result.count,
+            students: result.students
+        })
+    }
+
     //USER
     @Get('/category/:slug')
     async getByCategory(
@@ -120,15 +147,5 @@ export default class CourseController {
         return {
             message: 'Đăng ký thành công'
         }
-    }
-
-    @Get('/:slug/student')
-    @Authorized('ROLE_USER')
-    async getCourseWithLessonsByStudent(
-        @Param('slug') slug: string,
-        @CurrentUser() user: IUserCredential,
-        @Res() res: Response
-    ) {
-        
     }
 }

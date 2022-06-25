@@ -5,7 +5,7 @@ import CourseRepository from "repository/CourseRepository";
 import Course from "models/Course";
 import { CourseUpdateBasicDto, CouseCreatingDto } from "dto/CourseDto";
 import StringUtils from "utils/StringUtils";
-import PageRequest from "dto/PageDto";
+import PageRequest, { UserListInCourse } from "dto/PageDto";
 import { Op } from "sequelize";
 import IUserCredential from "interfaces/IUserCredential";
 import User from "models/User";
@@ -17,6 +17,7 @@ import { Sequelize } from "sequelize-typescript";
 import Category from "models/Category";
 import UserCourse from "models/UserCourse";
 import Test from "models/Test";
+import moment from "moment";
 
 
 @Service()
@@ -39,8 +40,9 @@ export default class CourseService {
         }
     }
 
-    async getCoursesByTeacher(teacherId: number) {
-        return await this.courseRepository.getCoursesByTeacher(teacherId);
+    async getCoursesByTeacher(teacherId: number, courseName: string) {
+        var nameCondition = courseName ? { name: { [Op.like]: `${courseName}%` } } : {};
+        return await this.courseRepository.getCoursesByTeacher(teacherId, nameCondition);
     }
 
     async createCourseByTeacher(teacherId: number, course: CouseCreatingDto) {
@@ -64,6 +66,19 @@ export default class CourseService {
             teacherId,
             imageLink: 'https://dldwormxm4m6s.cloudfront.net/lecanhkieuoanh/1654147086444-Video files-bro.png'
         })
+    }
+
+    async deleteByTeacher(user: IUserCredential, id: number) {
+        const course = await Course.findOne({
+            where: {
+                teacherId: user.id,
+                id
+            }
+        })
+
+        if(!course) throw new NotFoundError('Khóa học không tồn tại')
+
+        await course.destroy();
     }
 
     async getDetailsToEditByTeacher(user: IUserCredential, slug: string) {
@@ -136,6 +151,50 @@ export default class CourseService {
                     words: lesson.words.length,
                 }
             })
+        };
+    }
+
+    async getStudents(user: IUserCredential, courseId: number, params: UserListInCourse) {
+        const {page, size, name, email, joinedDate} = params
+        var nameCondition = name ? { name: { [Op.like]: `${name}%` } } : {};
+        var joinedCondition = joinedDate ? { 
+            createdAt: {[Op.gt]: moment(joinedDate, 'YYYY-MM-DD'), 
+                        [Op.lt]: moment(joinedDate, 'YYYY-MM-DD').add(1, 'days').toDate() 
+                    }} : {};
+        var emailCondition =  email ? { email: { [Op.like]: `${email}%` } } : {};
+        
+        const course = await Course.findOne({
+            where: {id: courseId, teacherId: user.id}
+        })
+
+        if (!course) throw new NotFoundError("Khóa học không tồn tại")
+
+        const result = await UserCourse.findAndCountAll({
+            where: {
+                [Op.and]: [
+                    {courseId},
+                    joinedCondition
+                ]
+            },
+            include: [{
+                model: User,
+                where: {
+                    [Op.and]: [
+                        nameCondition,
+                        emailCondition
+                    ]
+                },
+                attributes: {
+                    exclude: ['locked', 'activated', 'registerToken', 'password']
+                }
+            }],
+            limit: size,
+            offset: size*page 
+        })
+
+        return {
+            students: result.rows,
+            count: result.count
         };
     }
 
@@ -217,7 +276,6 @@ export default class CourseService {
 
         const userCourse = await this.checkUserEnrolledCourse(user.id, courseId);
         //Check if user has enrolled course
-        console.log(userCourse)
         if (userCourse) return course
         if (course.isPublic) {
             await UserCourse.create({

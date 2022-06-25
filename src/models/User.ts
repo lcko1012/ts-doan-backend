@@ -67,6 +67,9 @@ class User extends Model {
     @HasMany(() => UserTest)
     userTests?: UserTest[];
 
+    @HasMany(() => UserCourse)
+    userCourses: UserCourse[]
+
     @HasMany(() => Message, 'senderId')
     sentMessages: Message[];
 

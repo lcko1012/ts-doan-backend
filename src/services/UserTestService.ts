@@ -51,7 +51,6 @@ export default class UserTestService {
     async getListByTeacher(id: number, lessonId: number,
         teacher: IUserCredential, userTestRequest: UserTestRequestDto
     ) {
-        console.log(userTestRequest)
         const { page, size, name, createdAt, isPass, scoreOrder } = userTestRequest;
         var nameCondition = name ? { name: { [Op.like]: `${name}%` } } : {};
         var createdAtCondition = createdAt ? { 

@@ -1,4 +1,4 @@
-import { Column, ForeignKey, Model,Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model,Table } from "sequelize-typescript";
 import User from "./User";
 import Course from "./Course";
 
@@ -17,12 +17,18 @@ class UserCourse extends Model {
         unique: false
     })
     userId: number;
+    
+    @BelongsTo(() => User)
+    user: User;
 
     @ForeignKey(() => Course)
     @Column({
         unique: false
     })
     courseId: number;
+
+    @BelongsTo(() => Course)
+    course: Course;
 
     @Column
     learningLesson: number;
