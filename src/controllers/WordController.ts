@@ -60,6 +60,16 @@ export default class WordController {
         return res.send(result)
     }
 
+    @Get('/by_id/:id')
+    @Authorized()
+    async getWordDetailsById(
+        @Param('id') id: number,
+        @Res() res: Response
+    ){
+        const result = await this.wordService.getById(id);
+        return res.send(result)
+    }
+
     @Post('/admin')
     @Authorized(Role.ROLE_ADMIN)
     async createWordDict(@Body() newWord: CreateWordDto, @Res() res: Response) {
@@ -94,7 +104,6 @@ export default class WordController {
         }
     }
 
-    //get by id
     @Get('/lesson/:lessonId/course/:courseId/teacher')
     @Authorized('ROLE_TEACHER')
     async getWordsOfLessonByTeacher(
@@ -137,11 +146,10 @@ export default class WordController {
         @CurrentUser() user: IUserCredential,
         @Res() res: Response)
     {
-        const newWord = await this.wordService.addExistedWordToLesson(lessonId, courseId, wordId, user);
+        await this.wordService.addExistedWordToLesson(lessonId, courseId, wordId, user);
 
         return res.send({
             message: "Thêm từ thành công",
-            newWord
         })
     }
 
@@ -170,7 +178,7 @@ export default class WordController {
     {
         newWord.audios = newWord.audios ? JSON.stringify(newWord.audios) : null;
 
-        if (!newWord.lessonId) throw new BadRequestError('')
+        if (!newWord.lessonId) throw new BadRequestError('Thiếu tham số id bài học')
         await this.wordService.updateWordInLessonByTeacher(lessonId, courseId, wordId, newWord, user);
         return res.send({
             message: "Cập nhật từ thành công"

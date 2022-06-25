@@ -1,8 +1,9 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Index, Model, Table } from "sequelize-typescript";
+import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Index, Model, Table } from "sequelize-typescript";
 import Course from "./Course";
 import Content from "./Content";
 import Word from "./Word";
 import Test from "./Test";
+import LessonWord from "./LessonWord";
 
 @Table
 export default class Lesson extends Model {
@@ -21,8 +22,11 @@ export default class Lesson extends Model {
     })
     content: string;
     
-    @HasMany(() => Word)
-    words: Word[];
+    @BelongsToMany(() => Word, () => LessonWord)
+    words: Word[]
+
+    @HasMany(() => LessonWord)
+    lessonWords: LessonWord[]
 
     @HasMany(() => Content)
     contents: Content[];

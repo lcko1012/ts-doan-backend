@@ -1,4 +1,5 @@
-import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
+import { AllowNull, Column, DataType, HasOne, Index, Model, Table, ForeignKey, BelongsTo, HasMany, BelongsToMany } from "sequelize-typescript";
+import FolderWord from "./FolderWord";
 import User from "./User";
 import Word from "./Word";
 
@@ -11,8 +12,11 @@ class Folder extends Model {
     @Column
     slug: string
 
-    @HasMany(() => Word)
-    words?: Word[]
+    @BelongsToMany(() => Word, () => FolderWord)
+    words: Word[]
+
+    @HasMany(() => FolderWord)
+    folderWords: FolderWord[]
 
     @ForeignKey(() => User)
     @Column

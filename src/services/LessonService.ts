@@ -81,7 +81,6 @@ export default class LessonService {
         const lesson = await this.findLessonByIdAndTeacherId(lessonId, user.id);
         
         const words = await Word.findAll({
-            where: { lessonId: lesson.id },
             include: [
                 {
                     model: WordKind.scope('do_not_get_time'),
@@ -90,6 +89,11 @@ export default class LessonService {
                         {model: Kind},
                         {model: Idiom}
                     ]
+                },
+                {
+                    model: Lesson,
+                    where: {id: lesson.id},
+                    attributes: []
                 }
             ]
         })

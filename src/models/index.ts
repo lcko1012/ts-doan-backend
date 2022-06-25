@@ -18,6 +18,8 @@ import Answer from './Answer';
 import Category from './Category';
 import WordKind from './WordKind';
 import Message from './Message';
+import LessonWord from './LessonWord';
+import FolderWord from './FolderWord';
 
 const sequelize = new Sequelize({
     database: process.env.DB_NAME,
@@ -40,7 +42,7 @@ const sequelize = new Sequelize({
 sequelize.addModels([
     User, PasswordResetToken, Word, Kind, Meaning, Idiom, Example,
     Folder, Course, Lesson, Test, UserCourse, UserTest, Content,
-    Question, Answer, Category, WordKind, Message
+    Question, Answer, Category, WordKind, Message, LessonWord, FolderWord
 ]);
 
 export default sequelize;

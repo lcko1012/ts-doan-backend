@@ -3,17 +3,10 @@ import Folder from "./Folder";
 import Lesson from "./Lesson";
 import Kind from "./Kind";
 import WordKind from "./WordKind";
+import LessonWord from "./LessonWord";
+import FolderWord from "./FolderWord";
 
 @Scopes(() => ({
-    is_dict: {
-        where: {
-            folderId: null,
-            lessonId: null
-        },
-        attributes: {
-            exclude: ["folderId", 'lessonId']
-        }
-    },
     do_not_get_time: {
         attributes: {
             exclude: ["createdAt", "updatedAt"]
@@ -41,33 +34,28 @@ class Word extends Model {
     @Column
     audios: string;
 
+    @Column({
+        defaultValue: true
+    })
+    isDict: boolean
+
     @BelongsToMany(() => Kind, () => WordKind, "wordId", "kindId")
     kinds: Kind[];
 
     @HasMany(() => WordKind)
     wordKinds: WordKind[];
 
-    @ForeignKey(() => Folder)
-    @Column
-    folderId?: number;
+    @BelongsToMany(() => Folder, () => FolderWord)
+    folders: Folder[]
 
-    @BelongsTo(() => Folder, {
-        foreignKey: {
-            allowNull: true
-        }
-    })
-    folder?: Folder;
+    @HasMany(() => FolderWord)
+    folderWords: FolderWord[]
 
-    @ForeignKey(() => Lesson)
-    @Column
-    lessonId?: number;
+    @BelongsToMany(() => Lesson, () => LessonWord)
+    lessons: Lesson[]
 
-    @BelongsTo(() => Lesson, {
-        foreignKey: {
-            allowNull: true
-        }
-    })
-    lesson?: Lesson;
+    @HasMany(() => LessonWord)
+    lessonWords: LessonWord[]
 
     @CreatedAt
     @Column({

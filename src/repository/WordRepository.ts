@@ -8,17 +8,19 @@ import Idiom from "models/Idiom";
 import Example from "models/Example";
 import Kind from "../models/Kind";
 import WordKind from "models/WordKind";
+import Lesson from "models/Lesson";
 
 @Service()
 export default class WordRepository {
     public async searchWord(word: string) {
         return await Word
-            .scope(['is_dict', 'do_not_get_time'])
+            .scope(['do_not_get_time'])
             .findAll({
                 where: {
                     vocab: {
                         [Op.like]: `${word}%`
-                    }
+                    },
+                    isDict: true
                 },
                 
                 limit: 10,
@@ -46,7 +48,7 @@ export default class WordRepository {
 
     public async getAllWords(page: number, size: number,
         keywordCondition: any, phoneticCondition: any, meaningCondition: any) {
-        return await Word.scope(['is_dict', 'do_not_get_time']).findAndCountAll({
+        return await Word.scope(['do_not_get_time']).findAndCountAll({
             offset: page * size,
             limit: size,
             where: {
@@ -93,11 +95,10 @@ export default class WordRepository {
         })
     }
 
-    public async getById(id: number, lessonId: number | null) {
+    public async getById(id: number) {
         return await Word.findOne({
             where: {
                 id,
-                lessonId
             },
             include: [
                 {
@@ -123,8 +124,7 @@ export default class WordRepository {
                     keywordCondition,
                     phoneticCondition,
                     
-                ],
-                lessonId: lessonId
+                ]
             },
             include: [
                 {
@@ -136,6 +136,11 @@ export default class WordRepository {
                             where: meaningCondition
                         }
                     ]
+                },
+                {
+                    model: Lesson,
+                    where: {id: lessonId},
+                    attributes: []
                 }
             ]
         })
@@ -143,7 +148,7 @@ export default class WordRepository {
 
     public async createWord({vocab, phonetic, meaning, kindId}: {
         vocab: string, phonetic: string, meaning: string, kindId: number}, 
-        lessonId: number | null) 
+        isDict: boolean) 
     {
         return await Word.create({
             vocab: vocab,
@@ -154,7 +159,7 @@ export default class WordRepository {
                     name: meaning,
                 }]
             }],
-            lessonId
+            isDict
         }, {
             include: [{
                 model: WordKind,
