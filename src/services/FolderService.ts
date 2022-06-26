@@ -49,4 +49,27 @@ export default class FolderService {
 
         return folder;
     }
+
+
+    async delete(id: number, user: IUserCredential) {
+        const folder = await this.findFolder(id, user)
+        await folder.destroy()
+    }
+
+    async updateName(id: number, user: IUserCredential, name: string) {
+        await this.findFolder(id, user)
+        
+        await Folder.update({
+            name,
+            slug: StringUtils.createSlug(name)
+        }, {where: {id}})
+    }
+
+    private async findFolder (id: number, user: IUserCredential) {
+        const folder = await Folder.findOne({
+            where: {id, userId: user.id}
+        })
+        if (!folder) throw new NotFoundError('Không tìm thấy thư mục')
+        return folder
+    }
 }

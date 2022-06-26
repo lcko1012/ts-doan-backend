@@ -3,10 +3,16 @@ import IUserCredential from "interfaces/IUserCredential";
 import Message from "models/Message";
 import { Op } from "sequelize";
 import { Service } from "typedi";
+import Websocket from "websocket/websocket";
 
 @Service()
 export default class MessageService {
-    constructor(){}
+    private readonly io: Websocket;
+
+    constructor(){
+        this.io = Websocket.getInstance();
+    }
+
     async getByTeacherIdAndUserId(teacherId: number, userId: number) {
         const messages = await Message.findAll({
             where: {
@@ -35,6 +41,8 @@ export default class MessageService {
             msg.myMessage = msg.senderId === userId ? true : false
         }
 
+        // this.joinPrivateChatSockets()
+
         return customeMessages.reverse();
     }
 
@@ -45,6 +53,23 @@ export default class MessageService {
             content: data.content.trim()
         })
 
+        var room = `${user.id}-${data.receiverId}`
+        if (user.role === 'ROLE_TEACHER'){
+            room = `${data.receiverId}-${user.id}`
+        }
+        console.log('roomname:', room)
+
+        this.updateSockets(message, room)
+        console.log(message)
         return message
+    }
+
+    private updateSockets(message, room) {
+        this.io.of('message').to(room).emit('notification', { data: message });
+    }
+
+    private joinPrivateChatSockets(userId: number, teacherId: number){
+        // this.io.of('message').socketsJoin('userId-teacherId')
+        // this.io.of('message').emit('load_messages');
     }
 }

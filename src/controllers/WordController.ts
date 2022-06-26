@@ -215,14 +215,29 @@ export default class WordController {
     @Authorized()
     async addExistedWordToFolder(
         @Param('folderId') folderId: number,
-        @BodyParam('meaningId') meaningId: number,
+        @BodyParam('wordId') wordId: number,
         @CurrentUser() user: IUserCredential,
         @Res() res: Response
-
     ){
-        if (!meaningId) throw new BadRequestError('Không có id nghĩa')
-        const words = await this.wordService.addExistedWordToFolder(folderId, meaningId, user);
+        if (!wordId) throw new BadRequestError('Không có id nghĩa')
+        await this.wordService.addExistedWordToFolder(folderId, wordId, user);
 
-        return res.send(words)
+        return res.send({
+            message: 'Đã thêm từ vựng vào thư mục'
+        })
+    }
+
+    @Delete('/:wordId/folder/:folderId/user')
+    @Authorized()
+    async deleteWordInFolder(
+        @Param('folderId') folderId: number,
+        @Param('wordId') wordId: number,
+        @CurrentUser() user: IUserCredential,
+        @Res() res: Response
+    ){
+        await this.wordService.deleteWordInFolder(wordId, folderId, user);
+        return res.send({
+            message: 'Đã xóa từ vựng'
+        })
     }
 }

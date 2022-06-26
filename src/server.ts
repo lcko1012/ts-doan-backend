@@ -2,16 +2,20 @@ require('dotenv').config();
 import App from "app";
 import { GlobalErrorHandler } from "middlewares/GlobalErrorHandler";
 import { CurrentUserChecker, PreAuthorize } from "middlewares/JwtFilter";
-import "reflect-metadata"
-import { useContainer, useExpressServer } from "routing-controllers";
+import { useContainer, useExpressServer} from "routing-controllers";
 import Container from "typedi";
+
+import Websocket from './websocket/websocket'
+import MessageSocket from './websocket/message.socket'
+import "reflect-metadata"
+import sequelize from "models";
 
 useContainer(Container);
 
 const app = new App();
 app.bootstrap();
 
-useExpressServer(app.getServer(), {
+const newApp = useExpressServer(app.getServer(), {
     routePrefix: '/api',
     development: true,
     defaultErrorHandler: false,
@@ -19,6 +23,21 @@ useExpressServer(app.getServer(), {
     middlewares: [GlobalErrorHandler],
     authorizationChecker: PreAuthorize,
     currentUserChecker: CurrentUserChecker
-}) 
+})
 
-app.listen();
+const port = process.env.APP_PORT || 1012;
+
+const httpServer = require('http').Server(newApp);
+const io = Websocket.getInstance(httpServer);
+
+io.initializeHandlers([
+    { path: '/message', handler: new MessageSocket() }
+]);
+
+sequelize.sync().then(() => {
+    console.log('Database initialized');
+    httpServer.listen(port, () => {
+        console.log(`This is working in port ${port}`);
+    })
+}).catch(err => console.error(`Database initialization error: ${err}`))
+

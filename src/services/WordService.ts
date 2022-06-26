@@ -18,6 +18,8 @@ import Lesson from "models/Lesson";
 import LessonService from "./LessonService";
 import UserCourse from "models/UserCourse";
 import LessonWord from "models/LessonWord";
+import FolderWord from "models/FolderWord";
+import Folder from "models/Folder";
 
 @Service()
 export default class WordService {
@@ -320,7 +322,6 @@ export default class WordService {
 
         //3. get words of lesson
         const words = await Word.findAll({
-            where: { lessonId: lesson.id },
             include: [{
                 model: WordKind,
                 include: [
@@ -328,67 +329,53 @@ export default class WordService {
                     { model: Meaning, include: [{ model: Example }] },
                     { model: Idiom }
                 ]
+            }, {
+                model: Lesson,
+                where: {id: lesson.id},
+                attributes: []
             }]
         })
 
         return words
     }
 
-    async addExistedWordToFolder(folderId: number, meaningId: number, user: IUserCredential) {
-        const wordKind = await WordKind.findOne({
+    async addExistedWordToFolder(folderId: number, wordId: number, user: IUserCredential) {
+        const word = await Word.findOne({
+            where: {id: wordId}
+        })
+
+        if (!word) throw new BadRequestError('Từ vựng không tồn tại')
+
+        const folder = await Folder.findOne({
+            where: {id: folderId, userId: user.id}
+        })
+
+        if (!folder) throw new BadRequestError('Thư mục không tồn tại')
+
+        const folderWord = await FolderWord.findOne({
+            where: {wordId, folderId}
+        })
+
+        if (folderWord) throw new BadRequestError('Từ vựng này đã tồn tại trong thư mục')
+
+        await FolderWord.create({
+            wordId, folderId
+        })
+    }
+
+    async deleteWordInFolder(wordId: number, folderId: number, user: IUserCredential) {
+        const folderWord = await FolderWord.findOne({
+            where: {wordId, folderId},
             include: [{
-                model: Meaning,
-                attributes: ['name'],
-                where: { id: meaningId },
-                include: [{
-                    model: Example,
-                    attributes: ['mean', 'sentence']
-                }]
+                model: Folder,
+                where: {userId: user.id}
             }]
         })
+        if (!folderWord) throw new BadRequestError('Không tồn tại từ vựng hoặc thư mục')
 
-        if (!wordKind) throw new NotFoundError('Từ vựng không tồn tại')
-
-        const word = await Word.findOne({
-            where: {
-                id: wordKind.wordId,
-                folderId: null,
-                lessonId: null
-            }
+        await FolderWord.destroy({
+            where: {wordId, folderId}
         })
-
-        if (!word) throw new NotFoundError('Từ vựng không tồn tại')
-
-        try {
-            await sequelize.transaction(async transaction => {
-                const newWord = await Word.create({
-                    vocab: word.vocab,
-                    phonetic: word.phonetic,
-                    audios: word.audios,
-                    imageLink: word.imageLink,
-                    folderId: folderId,
-                }, { transaction })
-
-                const newWordKind = await WordKind.create({
-                    wordId: newWord.id,
-                    kindId: wordKind.kindId,
-                    meanings: wordKind.meanings,
-                }, {
-                    include: [{
-                        model: Meaning,
-                        include: [{ model: Example }]
-                    }],
-                    transaction,
-                })
-                return newWordKind
-            })
-
-            // const result = await this.wordRepository.getByVocab(word.vocab, lesson.id)
-
-        } catch (err) {
-            console.log(err)
-            throw new BadRequestError('Đã có lỗi xảy ra')
-        }
     }
 
     private async checkExistedLessonWord(lessonId: number, wordId: number) {

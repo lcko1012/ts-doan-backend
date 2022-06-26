@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import sequelize from 'models';
 import cors from 'cors'
+import { useContainer, useExpressServer, createExpressServer, RoutingControllersOptions } from "routing-controllers";
 
 export default class App {
     private readonly app: express.Application;

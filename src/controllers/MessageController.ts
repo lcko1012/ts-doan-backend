@@ -20,8 +20,12 @@ export default class MessageController {
         @CurrentUser() user: IUserCredential,
         @Res() res: Response
     ){
+        if (!((user.role === 'ROLE_USER' && user.id === userId) || 
+            user.role === 'ROLE_TEACHER' && user.id === teacherId)) {
+                throw new BadRequestError('Không thể xem tin nhắn')
+        } 
         if (!teacherId || !userId) throw new BadRequestError('Thiếu tham số')
-        const messages = await this.messageService.getByTeacherIdAndUserId(teacherId, user.id)
+        const messages = await this.messageService.getByTeacherIdAndUserId(teacherId, userId)
         return res.send(messages)
     }
 
