@@ -36,3 +36,6 @@ export const getUsersInRoom = (room: string) => {
     return users.filter(user => user.room === room)
 }
 
+export const getUsers = () => {
+    return users;
+}

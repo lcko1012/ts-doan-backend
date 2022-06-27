@@ -21,6 +21,7 @@ export default class Message extends Model {
     receiver: User
 
     @ForeignKey(() => User)
+    @Column
     receiverId: number;
 
     @Column({

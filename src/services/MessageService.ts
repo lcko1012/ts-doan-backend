@@ -1,9 +1,12 @@
 import { MessageDto } from "dto/MessageDto";
 import IUserCredential from "interfaces/IUserCredential";
 import Message from "models/Message";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { Service } from "typedi";
 import Websocket from "websocket/websocket";
+import User from "models/User"
+import sequelize from "models";
+import { getUsers, getUsersInRoom } from "websocket/users-global";
 
 @Service()
 export default class MessageService {
@@ -13,18 +16,18 @@ export default class MessageService {
         this.io = Websocket.getInstance();
     }
 
-    async getByTeacherIdAndUserId(teacherId: number, userId: number) {
+    async getByTeacherIdAndUserId(senderId: number, receiverId: number) {
         const messages = await Message.findAll({
             where: {
                 [Op.or]: [{
                     [Op.and]: [
-                        {senderId: teacherId},
-                        {receiverId: userId}
+                        {senderId: senderId},
+                        {receiverId: receiverId}
                     ]
                 }, {
                    [Op.and]: [
-                        {senderId: userId},
-                        {receiverId: teacherId}
+                        {senderId: receiverId},
+                        {receiverId: senderId}
                    ] 
                 }]
             },
@@ -38,7 +41,7 @@ export default class MessageService {
         ))
 
         for(var msg of customeMessages){
-            msg.myMessage = msg.senderId === userId ? true : false
+            msg.myMessage = msg.senderId === senderId ? true : false
         }
 
         // this.joinPrivateChatSockets()
@@ -60,16 +63,39 @@ export default class MessageService {
         console.log('roomname:', room)
 
         this.updateSockets(message, room)
-        console.log(message)
         return message
     }
 
-    private updateSockets(message, room) {
-        this.io.of('message').to(room).emit('notification', { data: message });
+    async getUserListMsgByTeacher(teacher: IUserCredential) {
+        const list = await Message.findAll({
+            where: {receiverId: teacher.id},
+            attributes: [[sequelize.fn('DISTINCT', sequelize.col('senderId')), 'senderId']]
+        })
+
+        var result = list.map(d => d.toJSON())
+
+        for(var user of result) {
+            var info = await User.findOne({where: {id: user.senderId}, attributes: {
+                exclude: ['password']
+            }})
+            user.user = info
+        }
+
+        return result
     }
 
-    private joinPrivateChatSockets(userId: number, teacherId: number){
+    private updateSockets(message: Message, room: string) {
+        this.io.of('message').to(room).emit('notification', { data: message.senderId });
+        const users = getUsers();
+        var indexUser = users.findIndex((user) => user.userId == message.receiverId && user.room != room)
+        if (indexUser !== -1) {
+            this.io.of('message').to(users[indexUser].id).emit('invited', {senderId: message.senderId})
+        }
+    }
+
+    private joinPrivateChatSockets(senderId: number, receiverId: number, room: string){
         // this.io.of('message').socketsJoin('userId-teacherId')
         // this.io.of('message').emit('load_messages');
+        
     }
 }

@@ -43,25 +43,6 @@ export default class UserService {
     }
 
     public async getWithTests(userId: number) {
-        // const result = await User.findOne({
-        //     where: {id: userId},
-        //     attributes: [],
-        //     include: [{
-        //         model: UserTest,
-        //         include: [{
-        //             model: Test,
-        //         }]
-        //         // include: [{
-        //         //     model: Lesson,
-        //         //     attributes: ['name'],
-        //         //     include: [{
-        //         //         model: Course,
-        //         //         attributes: ['name']
-        //         //     }]
-        //         // }]
-        //     }]
-        // })
-
         const result = await UserTest.findAll({
             where: {userId},
             include: [{
@@ -76,31 +57,12 @@ export default class UserService {
                 }]
             }]
         })
-
-        // const result = await UserTest.findAll({
-        //     where: {userId},
-        //     include: [{
-        //         model: Test,
-        //         include: [{
-        //             model: Lesson,
-        //             attributes: ['name'],
-        //             include: [{
-        //                 model: Course,
-        //                 attributes: ['name']
-        //             }]
-        //         }]
-        //     }]
-        // })
-
-    
         return result
     }
 
     public async getWithFolders(userId: number, pageRequest: PageRequest) {
         const {folderName} = pageRequest;
-        console.log(folderName)
         const folderNameCondition = folderName ? {name: {[Op.like]: `${folderName}%`}} : null;
-        console.log(folderNameCondition)
         const result = await User.findOne({
             where: {id: userId},
             // attributes: [],
@@ -127,6 +89,14 @@ export default class UserService {
         })
 
         return folders
+    }
+
+    async getUserById(id: number) {
+        const user = await User.findOne({
+            where: {activated: true, id},
+            attributes: ['name', 'email', 'avatarLink', 'role']
+        })
+        return user;
     }
 
     private sanitizaUser(user: User) {

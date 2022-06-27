@@ -1,6 +1,6 @@
 import UserService from "../services/UserService";
 import { Service } from "typedi";
-import { Authorized, BadRequestError, CurrentUser, Get, HttpCode, JsonController, Params, QueryParam, QueryParams, Res } from "routing-controllers";
+import { Authorized, BadRequestError, CurrentUser, Get, HttpCode, JsonController, Param, Params, QueryParam, QueryParams, Res } from "routing-controllers";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
 import {Response} from 'express'
@@ -52,5 +52,14 @@ export default class UserController {
         return res.send(result);
     }
 
-   
+    @Get('/user/by_id/:id')
+    @Authorized()
+    async getUserDetails(
+        @Param('id') id: number,
+        @CurrentUser() currentUser: IUserCredential,
+        @Res() res: Response
+    ){
+        const result = await this.userService.getUserById(id);
+        return res.send(result);
+    }
 }

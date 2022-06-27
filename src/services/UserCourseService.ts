@@ -10,7 +10,6 @@ import { Service } from "typedi";
 export default class UserCourseSerivice {
     constructor(){}
     
-
     async findUserByEmailByTeacher(email: string, courseId: number) {
         const students = await UserCourse.findAll({
             where: {

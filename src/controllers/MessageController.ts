@@ -1,4 +1,4 @@
-import { Authorized, BadRequestError, Body, CurrentUser, Get, JsonController, Post, QueryParam, Res } from "routing-controllers";
+import { Authorized, BadRequestError, Body, CurrentUser, Get, JsonController, Param, Post, QueryParam, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from "express";
 import MessageService from "services/MessageService";
@@ -15,17 +15,17 @@ export default class MessageController {
     @Get()
     @Authorized() 
     async getByTeacherIdAndUserId(
-        @QueryParam('teacherId') teacherId: number,
-        @QueryParam('userId') userId: number,
+        @QueryParam('senderId') senderId: number,
+        @QueryParam('receiverId') receiverId: number,
         @CurrentUser() user: IUserCredential,
         @Res() res: Response
     ){
-        if (!((user.role === 'ROLE_USER' && user.id === userId) || 
-            user.role === 'ROLE_TEACHER' && user.id === teacherId)) {
+        if (!((user.id === senderId) || (user.id === receiverId))) 
+        {
                 throw new BadRequestError('Không thể xem tin nhắn')
         } 
-        if (!teacherId || !userId) throw new BadRequestError('Thiếu tham số')
-        const messages = await this.messageService.getByTeacherIdAndUserId(teacherId, userId)
+        if (!senderId || !receiverId) throw new BadRequestError('Thiếu tham số')
+        const messages = await this.messageService.getByTeacherIdAndUserId(senderId, receiverId)
         return res.send(messages)
     }
 
@@ -39,4 +39,26 @@ export default class MessageController {
         const message = await this.messageService.send(data, user);
         return res.send(message)
     }
+
+    @Get('/user_list/teacher')
+    @Authorized() 
+    async getUserMessageHistory(
+        @CurrentUser() teacher: IUserCredential,
+        @Res() res: Response
+    ){
+        const list = await this.messageService.getUserListMsgByTeacher(teacher);
+        return res.send(list)
+    }
+
+    // @Get('/:userId/teacher')
+    // @Authorized() 
+    // async getWithUserInforByTeacher(
+    //     @Param('userId') userId: number,
+    //     @CurrentUser() teacher: IUserCredential,
+    //     @Res() res: Response
+    // ){
+    //     const result = await this.messageService.getWithUserInforByTeacher(userId, teacher)
+    //     return res.send(result)
+    // }
+
 }
