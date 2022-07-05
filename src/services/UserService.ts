@@ -1,6 +1,6 @@
 import UserRepository from "../repository/UserRepository";
 import { Service } from "typedi";
-import { NotFoundError } from "routing-controllers";
+import { BadRequestError, NotFoundError } from "routing-controllers";
 import User from "models/User";
 import Course from "models/Course";
 import Test from "models/Test";
@@ -10,6 +10,10 @@ import { Op } from "sequelize";
 import Folder from "models/Folder";
 import Word from "models/Word";
 import UserTest from "models/UserTest";
+import IUserCredential from "interfaces/IUserCredential";
+import UserUpdate from "dto/UserDto";
+import bcrypt from "bcrypt";
+
 
 @Service()
 export default class UserService {
@@ -97,6 +101,22 @@ export default class UserService {
             attributes: ['name', 'email', 'avatarLink', 'role']
         })
         return user;
+    }
+
+    async update(currentUser: IUserCredential, data: UserUpdate){
+        const user = await User.findOne({
+            where: {id: currentUser.id}
+        })
+
+        if ((data.password_confirmation || data.password)) {
+            if (data.password_confirmation === data.password) {
+                data.password =  await bcrypt.hash(data.password, 10);
+            }else {
+                throw new BadRequestError('Thiếu thông tin mật khẩu')
+            }
+        }
+
+        await user.update(data)
     }
 
     private sanitizaUser(user: User) {

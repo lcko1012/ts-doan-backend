@@ -1,10 +1,11 @@
 import UserService from "../services/UserService";
 import { Service } from "typedi";
-import { Authorized, BadRequestError, CurrentUser, Get, HttpCode, JsonController, Param, Params, QueryParam, QueryParams, Res } from "routing-controllers";
+import { Authorized, BadRequestError, CurrentUser,Put, Get, HttpCode, JsonController, Param, Params, QueryParam, QueryParams, Res, Body } from "routing-controllers";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
 import {Response} from 'express'
 import PageRequest from "dto/PageDto";
+import UserUpdate from "dto/UserDto";
 
 @JsonController()
 @Service()
@@ -61,5 +62,18 @@ export default class UserController {
     ){
         const result = await this.userService.getUserById(id);
         return res.send(result);
+    }
+
+    @Put('/user')
+    @Authorized()
+    async updateUser(
+        @CurrentUser() currentUser: IUserCredential,
+        @Body() data: UserUpdate,
+        @Res() res: Response
+    ){
+        await this.userService.update(currentUser, data)
+        return res.send({
+            message: 'Cập nhật thành công'
+        })
     }
 }

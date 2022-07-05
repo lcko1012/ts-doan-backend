@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon"
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "build": "tsc"
   },
   "dependencies": {
     "@types/nodemailer": "^6.4.4",

@@ -16,11 +16,6 @@ export default class Lesson extends Model {
     
     @Column
     lessonNo: number;
-
-    @Column({
-        type: DataType.TEXT
-    })
-    content: string;
     
     @BelongsToMany(() => Word, () => LessonWord)
     words: Word[]

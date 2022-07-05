@@ -40,7 +40,7 @@ export default class AuthService {
                 role
             });
 
-            const activationLink = `${process.env.CLIENT_URL}/activate/${registerToken}`;
+            const activationLink = `${process.env.CLIENT_URL}/auth/activate/${registerToken}`;
             this.mailSender.sendActivationLink(email, activationLink);
         }
         else if (user.activated) {
@@ -48,7 +48,7 @@ export default class AuthService {
         }
         else {
             const registerToken = user.registerToken;
-            const activationLink = `${process.env.CLIENT_URL}/activate/${registerToken}`;
+            const activationLink = `${process.env.CLIENT_URL}/auth/activate/${registerToken}`;
             this.mailSender.sendActivationLink(email, activationLink);
         }
     }
@@ -116,7 +116,7 @@ export default class AuthService {
 
         passwordResetToken = await passwordResetToken.save();
 
-        let passwordResetLink = `${process.env.CLIENT_URL}/reset_password/${passwordResetToken.token}`;
+        let passwordResetLink = `${process.env.CLIENT_URL}/auth/reset_password/${passwordResetToken.token}`;
         
         this.mailSender.sendPasswordResetLink(email, passwordResetLink);
     }

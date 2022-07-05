@@ -22,12 +22,6 @@ class Course extends Model {
     @Column
     slug: string
 
-    @Index
-    @Column({
-        type: DataType.STRING(10),
-    })
-    code: string;
-
     @Column({
         type: DataType.DOUBLE(10, 2)
     })

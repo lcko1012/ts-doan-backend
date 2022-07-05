@@ -20,4 +20,6 @@ export class CourseUpdateBasicDto {
     subtitle: string;
 
     imageLink: string;
+
+    isPublic: boolean;
 }

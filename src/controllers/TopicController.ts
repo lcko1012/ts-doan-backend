@@ -1,5 +1,4 @@
 import { CouseCreatingDto } from "dto/CourseDto";
-import { DefinitionUpdatingDto } from "dto/DefinitionDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, Body, BodyParam, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, Res } from "routing-controllers";

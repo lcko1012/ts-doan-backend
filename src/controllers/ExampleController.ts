@@ -19,25 +19,25 @@ export default class ExampleController {
         return res.send(examples)
     }
 
-    @Post()
-    @HttpCode(StatusCodes.CREATED)
-    async createExample(@Body() exampleRequest: ExampleRequest, @Res() res: Response) {
-        const newExample = await this.exampleService.createExample(exampleRequest)
-        return res.send({
-            message: "Thêm ví dụ thành công",
-            newExample
-        })
-    }
+    // @Post()
+    // @HttpCode(StatusCodes.CREATED)
+    // async createExample(@Body() exampleRequest: ExampleRequest, @Res() res: Response) {
+    //     const newExample = await this.exampleService.createExample(exampleRequest)
+    //     return res.send({
+    //         message: "Thêm ví dụ thành công",
+    //         newExample
+    //     })
+    // }
 
-    @Put('/:id')
-    @HttpCode(StatusCodes.OK)
-    async updateExample(@Param('id') id: number, @Body() exampleRequest: ExampleRequest, @Res() res: Response) {
-        console.log(id, exampleRequest)
-        await this.exampleService.updateExample(id, exampleRequest)
-        return res.send({
-            message: "Cập nhật thành công"
-        })
-    }
+    // @Put('/:id')
+    // @HttpCode(StatusCodes.OK)
+    // async updateExample(@Param('id') id: number, @Body() exampleRequest: ExampleRequest, @Res() res: Response) {
+    //     console.log(id, exampleRequest)
+    //     await this.exampleService.updateExample(id, exampleRequest)
+    //     return res.send({
+    //         message: "Cập nhật thành công"
+    //     })
+    // }
 
     @Delete('/:id')
     @HttpCode(StatusCodes.OK)

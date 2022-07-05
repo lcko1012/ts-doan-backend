@@ -29,7 +29,7 @@ export default class CourseService {
     async getCourses(pageRequest: PageRequest) {
         const { page, size, courseName } = pageRequest;
 
-        var courseNameCondition = courseName ? { name: { [Op.like]: `%${courseName}%` } } : {};
+        var courseNameCondition = courseName ? { name: { [Op.like]: `%${courseName.toLowerCase()}%` } } : {};
 
         const result = await this.courseRepository.getAllCourses(page, size, courseNameCondition);;
         const list = result.rows
@@ -96,7 +96,7 @@ export default class CourseService {
             where: { id, teacherId: user.id },
             attributes: [
                 'id', 'name', 'description',
-                'subtitle', 'imageLink', 'slug',
+                'subtitle', 'imageLink', 'slug', 'isPublic'
             ]
         })
 
@@ -116,7 +116,8 @@ export default class CourseService {
             name: data.name,
             description: data.description,
             subtitle: data.subtitle,
-            imageLink: data.imageLink
+            imageLink: data.imageLink,
+            isPublic: data.isPublic
         }, { where: { id } })
     }
 
@@ -206,7 +207,7 @@ export default class CourseService {
 
         if (!category) throw new NotFoundError('Không tìm thấy danh mục')
 
-        return await Course.findAll({
+        const courses = await Course.findAll({
             where: {
                 categoryId: category.id,
                 isPublic: true,
@@ -215,11 +216,19 @@ export default class CourseService {
                 model: User,
                 as: 'teacher',
                 attributes: ['id', 'name', 'email']
+            }, {
+                model: User,
+                as: 'users',
             }],
             order: [
                 ['rating', 'DESC']
-            ]
+            ],
+            attributes: {
+                include: [[Sequelize.fn("COUNT", Sequelize.col('users.id')), "usersCount"]] , 
+            }
         })
+
+        return courses
     }
 
     async getCourse(slug: string, loggedInId: number | undefined) {
