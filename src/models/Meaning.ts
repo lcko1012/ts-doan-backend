@@ -23,7 +23,9 @@ class Meaning extends Model {
     })
     id: number;
 
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     name: string
  
     @HasMany(() => Example, {

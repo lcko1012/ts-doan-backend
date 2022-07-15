@@ -13,6 +13,7 @@ import UserTest from "models/UserTest";
 import IUserCredential from "interfaces/IUserCredential";
 import UserUpdate from "dto/UserDto";
 import bcrypt from "bcrypt";
+import sequelize from "models";
 
 
 @Service()
@@ -66,13 +67,14 @@ export default class UserService {
 
     public async getWithFolders(userId: number, pageRequest: PageRequest) {
         const {folderName} = pageRequest;
-        const folderNameCondition = folderName ? {name: {[Op.like]: `${folderName}%`}} : null;
+        console.log(folderName)
+        const folderNameCondition = folderName ? {name: 
+                                    sequelize.where(sequelize.fn('LOWER', sequelize.col('folders.name')), 
+                                                    'LIKE', '%' + folderName.toLowerCase() + '%')} : null;
         const result = await User.findOne({
             where: {id: userId},
-            // attributes: [],
             include: [{
                 model: Folder,
-                // as: 'folders',
                 where: folderNameCondition,
                 include: [{
                     model: Word,
@@ -83,7 +85,7 @@ export default class UserService {
             order: [['folders', 'createdAt', 'DESC']],
         })
 
-
+        if (!result) throw new NotFoundError("User not found");
         const folders = [...result.toJSON().folders];
         
         // count total words in folders and delete words
@@ -104,6 +106,15 @@ export default class UserService {
     }
 
     async update(currentUser: IUserCredential, data: UserUpdate){
+        console.log(data.about)
+        if (data.nameLink) {
+            const user = await User.findOne({
+                where: {nameLink: data.nameLink, id: {[Op.ne]: currentUser.id}}
+            })
+
+            if (user) throw new BadRequestError('Tên đã tồn tại')
+        }
+
         const user = await User.findOne({
             where: {id: currentUser.id}
         })
@@ -119,6 +130,44 @@ export default class UserService {
         await user.update(data)
     }
 
+    async getTeacherInfo(nameLink: string) {
+        const user = await User.findOne({
+            where: {nameLink, role: 'ROLE_TEACHER'},
+            attributes: ['name', 'avatarLink', 'about', ],
+            include: [{
+                model: Course,
+                as: 'ownedCourses',
+                include: [{
+                    model: User,
+                    as: 'teacher',
+                    attributes: ['id', 'name', 'email']
+                }, {
+                    model: Lesson,
+                    attributes: ['id']
+                }]
+            }]
+        })
+        return {
+            ...user.toJSON(),
+            ownedCourses: user.ownedCourses.map(course => {
+                return {
+                    id: course.id,
+                    name: course.name,
+                    slug: course.slug,
+                    imageLink: course.imageLink,
+                    createdAt: course.createdAt,
+                    subtitle: course.subtitle,
+                    teacherId: course.teacherId,
+                    isPublic: course.isPublic,
+                    description: course.description,
+                    rating: course.rating,                
+                    teacher: course.teacher.toJSON(),
+                    lessonsCount: course.lessons.length
+                }
+            })
+        };
+    }
+
     private sanitizaUser(user: User) {
         return {
             id: user.id,
@@ -128,6 +177,8 @@ export default class UserService {
             locked: user.locked,
             activated: user.activated,
             role: user.role,
+            about: user.about,
+            nameLink: user.nameLink,
         };
     }
 }

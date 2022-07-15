@@ -1,6 +1,6 @@
 import TestCreateDto, { TestSubmitDto, TestUpdateDto } from "dto/TestDto";
 import IUserCredential from "interfaces/IUserCredential";
-import { Authorized, Body, CurrentUser, Get, HttpCode, JsonController, Param, Params, Post, Put, Res } from "routing-controllers";
+import { Authorized, Body, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Params, Post, Put, Res } from "routing-controllers";
 import TestService from "services/TestService";
 import { Service } from "typedi";
 import { Response } from 'express'
@@ -46,6 +46,18 @@ export default class TestController {
     ){
         body.name = body.name.trim();
         await this.testService.update(id, body, teacher);
+        return {
+            message: 'Cập nhật thành công'
+        };
+    }
+
+    @Delete('/:id/teacher')
+    @Authorized('ROLE_TEACHER')
+    async delete(
+        @Param('id') id: number,
+        @CurrentUser() teacher: IUserCredential
+    ){
+        await this.testService.deleteByTeacher(id, teacher);
         return {
             message: 'Cập nhật thành công'
         };

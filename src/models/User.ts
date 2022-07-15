@@ -1,5 +1,6 @@
 import { AllowNull, BelongsToMany, Column, DataType, HasMany, HasOne, Index, Model, Table } from "sequelize-typescript";
 import Course from "./Course";
+import Feedback from "./Feedback";
 import Folder from "./Folder";
 import Message from "./Message";
 import PasswordResetToken from "./PasswordResetToken";
@@ -40,11 +41,18 @@ class User extends Model {
     activated: boolean;
 
     @Column({
+        type: DataType.TEXT
+    })
+    about: string;
+
+    @Column
+    nameLink: string;
+
+    @Column({
         type: DataType.ENUM({values: Object.keys(Role)}),
         defaultValue: Role.ROLE_USER
     })
     role: Role;
-
 
     @Column(DataType.STRING)
     registerToken: string | null;
@@ -75,6 +83,10 @@ class User extends Model {
 
     @HasMany(() => Message, 'receiverId')
     receivedMessage: Message[];
+
+    @HasMany(() => Feedback)
+    feedbacks: Feedback[]
+
 }
 
 export default User;

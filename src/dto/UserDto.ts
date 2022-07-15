@@ -17,4 +17,12 @@ export default class UserUpdate {
     @MinLength(6)
     @IsNotEmpty()
     password_confirmation: string;
+
+    @IsOptional()
+    @IsString()
+    about: string;
+
+    @IsOptional()
+    @IsString()
+    nameLink: string;
 }

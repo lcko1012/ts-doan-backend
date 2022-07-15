@@ -37,7 +37,8 @@ export default class AuthService {
                 name,
                 password: hashedPassword,
                 registerToken,
-                role
+                role,
+                nameLink: crypto.randomBytes(10).toString('hex')
             });
 
             const activationLink = `${process.env.CLIENT_URL}/auth/activate/${registerToken}`;

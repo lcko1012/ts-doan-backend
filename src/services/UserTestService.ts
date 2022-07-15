@@ -27,17 +27,17 @@ export default class UserTestService {
 
         userTest.details = JSON.parse(userTest.details);
 
-        const test = await Test.findOne({
-            where: { id: userTest.testId },
-        })
+        // const test = await Test.findOne({
+        //     where: { id: userTest.testId },
+        // })
 
-        if (!test) throw new NotFoundError('Không tìm thấy đề thi')
+        // if (!test) throw new NotFoundError('Không tìm thấy đề thi')
 
         return {
             ...userTest.toJSON(),
-            test: {
-                ...test.toJSON()
-            }
+            // test: {
+            //     ...test.toJSON()
+            // }
         }
     }
 

@@ -58,6 +58,25 @@ export default class TestService {
         })
     }
 
+    async deleteByTeacher(id: number, teacher: IUserCredential) {
+        const test = await Test.findOne({
+            where: {id},
+            include: [{
+                model: Lesson,
+                attributes: [],
+                include: [{
+                    model: Course,
+                    attributes: [],
+                    // where: {teacherId: teacher.id}
+                }]
+            }]
+        })
+
+        if (!test) throw new NotFoundError('Không tìm thấy bài kiểm tra')
+
+        await test.destroy()
+    }
+
     async getTestWithQuestionsByStudent(courseSlug: string, id: number, student: IUserCredential) {
         const course = await Course.findOne({
             where: { slug: courseSlug, isPublic: true }

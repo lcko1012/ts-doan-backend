@@ -1,7 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import sequelize from 'models';
+import sequelize from './models/index';
 import cors from 'cors'
 import { useContainer, useExpressServer, createExpressServer, RoutingControllersOptions } from "routing-controllers";
 

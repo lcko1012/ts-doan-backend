@@ -51,8 +51,6 @@ class MessageSocket implements MySocketInterface {
     }
 
     middlewareImplementation(socket: Socket, next) {
-        //Implement your middleware for orders here
-        // console.log(socket.handshake)
         return next();
     }
 }

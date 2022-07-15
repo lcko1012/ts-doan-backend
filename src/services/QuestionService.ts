@@ -98,6 +98,15 @@ export default class QuestionService {
         return questions
     }
 
+    async deleteQByTeacher(teacher: IUserCredential, questionId: number) {
+        const question = await Question.findOne({
+            where: {id: questionId},
+        }) 
+        if (!question) throw new BadRequestError("Không tìm thấy câu hỏi")
+
+        await question.destroy()
+    }
+
     private async findTestByLessonIdAndTeacherId(lessonId: number, testId: number, teacherId: number) {
         const test = await Test.findOne({
             where: { id: testId },
@@ -117,6 +126,7 @@ export default class QuestionService {
 
         return test;
     }
+
 
 
 }

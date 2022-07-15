@@ -17,7 +17,7 @@ export class TestUpdateDto extends TestCreateDto {
 
     @IsNotEmpty()
     @IsNumber()
-    @Min(1)
+    @Min(0)
     passingScore: number;
 }
 

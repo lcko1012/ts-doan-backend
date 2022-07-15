@@ -18,6 +18,7 @@ import Category from "models/Category";
 import UserCourse from "models/UserCourse";
 import Test from "models/Test";
 import moment from "moment";
+import UserTest from "models/UserTest";
 
 
 @Service()
@@ -41,7 +42,9 @@ export default class CourseService {
     }
 
     async getCoursesByTeacher(teacherId: number, courseName: string) {
-        var nameCondition = courseName ? { name: { [Op.like]: `${courseName}%` } } : {};
+        var nameCondition = courseName ? { name: 
+                                        sequelize.where(sequelize.fn('lower', sequelize.col('name')),
+                                        'LIKE', '%' +  courseName.toLowerCase() + '%')} : {};
         return await this.courseRepository.getCoursesByTeacher(teacherId, nameCondition);
     }
 
@@ -76,7 +79,7 @@ export default class CourseService {
             }
         })
 
-        if(!course) throw new NotFoundError('Khóa học không tồn tại')
+        if (!course) throw new NotFoundError('Khóa học không tồn tại')
 
         await course.destroy();
     }
@@ -130,7 +133,7 @@ export default class CourseService {
                     { model: Content },
                     {
                         model: Word
-                    }, {model: Test}
+                    }, { model: Test }
                 ]
             }],
             attributes: ['id', 'slug', 'isPublic', 'teacherId'],
@@ -156,16 +159,18 @@ export default class CourseService {
     }
 
     async getStudents(user: IUserCredential, courseId: number, params: UserListInCourse) {
-        const {page, size, name, email, joinedDate} = params
+        const { page, size, name, email, joinedDate } = params
         var nameCondition = name ? { name: { [Op.like]: `${name}%` } } : {};
-        var joinedCondition = joinedDate ? { 
-            createdAt: {[Op.gt]: moment(joinedDate, 'YYYY-MM-DD'), 
-                        [Op.lt]: moment(joinedDate, 'YYYY-MM-DD').add(1, 'days').toDate() 
-                    }} : {};
-        var emailCondition =  email ? { email: { [Op.like]: `${email}%` } } : {};
-        
+        var joinedCondition = joinedDate ? {
+            createdAt: {
+                [Op.gt]: moment(joinedDate, 'YYYY-MM-DD'),
+                [Op.lt]: moment(joinedDate, 'YYYY-MM-DD').add(1, 'days').toDate()
+            }
+        } : {};
+        var emailCondition = email ? { email: { [Op.like]: `${email}%` } } : {};
+
         const course = await Course.findOne({
-            where: {id: courseId, teacherId: user.id}
+            where: { id: courseId, teacherId: user.id }
         })
 
         if (!course) throw new NotFoundError("Khóa học không tồn tại")
@@ -173,7 +178,7 @@ export default class CourseService {
         const result = await UserCourse.findAndCountAll({
             where: {
                 [Op.and]: [
-                    {courseId},
+                    { courseId },
                     joinedCondition
                 ]
             },
@@ -190,7 +195,7 @@ export default class CourseService {
                 }
             }],
             limit: size,
-            offset: size*page 
+            offset: size * page
         })
 
         return {
@@ -200,38 +205,114 @@ export default class CourseService {
     }
 
     //USER
-    async getCoursesByCategory(categorySlug: string) {
+    async getCoursesByCategory(categorySlug: string, params: PageRequest) {
+        const {page, size, courseName} = params;
+        var nameCondition = courseName ? { name:
+                                        sequelize.where(sequelize.fn('lower', sequelize.col('name')),
+                                        'LIKE', '%' +  courseName.toLowerCase() + '%')} : {};
         const category = await Category.findOne({
             where: { slug: categorySlug }
         })
-
         if (!category) throw new NotFoundError('Không tìm thấy danh mục')
 
-        const courses = await Course.findAll({
+        const courses = await Course.findAndCountAll({
             where: {
-                categoryId: category.id,
-                isPublic: true,
+                [Op.and]: [
+                    {categoryId: category.id},
+                    {isPublic: true},
+                    nameCondition
+                ]
             },
+            limit: size,
+            offset: page*size,
             include: [{
                 model: User,
                 as: 'teacher',
                 attributes: ['id', 'name', 'email']
             }, {
-                model: User,
-                as: 'users',
+                model: Category,
+            }, {
+                model: Lesson,
+                attributes: ['id']
             }],
-            order: [
-                ['rating', 'DESC']
-            ],
-            attributes: {
-                include: [[Sequelize.fn("COUNT", Sequelize.col('users.id')), "usersCount"]] , 
-            }
+            order: [['rating', 'DESC']]
         })
 
-        return courses
+        const customCourses = courses.rows.map(course => {
+            return {
+                id: course.id,
+                name: course.name,
+                slug: course.slug,
+                imageLink: course.imageLink,
+                createdAt: course.createdAt,
+                subtitle: course.subtitle,
+                teacherId: course.teacherId,
+                isPublic: course.isPublic,
+                description: course.description,
+                rating: course.rating,                
+                teacher: course.teacher.toJSON(),
+                category: course.category.toJSON(),
+                lessonsCount: course.lessons.length,
+            }
+        })
+        return {
+            courses: customCourses,
+            count: courses.count
+        }
     }
 
-    async getCourse(slug: string, loggedInId: number | undefined) {
+    async searchByCourseName(params: PageRequest) {
+        const {page, size, courseName, filterCategory} = params;
+        var nameCondition = courseName ? { name:
+                                        sequelize.where(sequelize.fn('lower', sequelize.col('Course.name')),
+                                        'LIKE', '%' +  courseName.toLowerCase() + '%')} : {};
+        var categoryCondition = filterCategory ? { id: {[Op.in]: filterCategory} } : {};       
+        const courses = await Course.findAndCountAll({
+            where: {
+                [Op.and]: [
+                    {isPublic: true},
+                    nameCondition
+                ]
+            },
+            limit: size,
+            offset: page*size,
+            include: [{
+                model: User,
+                as: 'teacher',
+                attributes: ['id', 'name', 'email']
+            }, {
+                model: Category,
+                where: categoryCondition
+            }, {
+                model: Lesson,
+                attributes: ['id']
+            }],
+            order: [['rating', 'DESC']]
+        })
+        const customCourses = courses.rows.map(course => {
+            return {
+                id: course.id,
+                name: course.name,
+                slug: course.slug,
+                imageLink: course.imageLink,
+                createdAt: course.createdAt,
+                subtitle: course.subtitle,
+                teacherId: course.teacherId,
+                isPublic: course.isPublic,
+                description: course.description,
+                rating: course.rating,                
+                teacher: course.teacher.toJSON(),
+                lessonsCount: course.lessons.length,
+            }
+        })
+        return {
+            courses: customCourses,
+            count: courses.count
+        }
+    }
+
+    async getCourse(slug: string, user: IUserCredential) {
+        const loggedInId = user?.id
         const course = await Course.findOne({
             where: { slug },
             include: [{
@@ -245,7 +326,11 @@ export default class CourseService {
                     attributes: ['id', 'vocab']
                 }, {
                     model: Test,
-                    attributes: ['id', 'name', 'timeLimit']
+                    attributes: ['id', 'name', 'timeLimit'],
+                    include: [{
+                        model: UserTest,
+                        attributes: ['isPass', 'userId']
+                    }]
                 }],
             }, {
                 model: User,
@@ -255,7 +340,6 @@ export default class CourseService {
                 ['lessons', 'createdAt', 'ASC'],
                 ['lessons', 'tests', 'id', 'ASC'],
                 ["lessons", "contents", 'id', 'ASC'],
-
             ]
         })
 
@@ -264,19 +348,39 @@ export default class CourseService {
 
         if (loggedInId) {
             const userCourse = await UserCourse.findOne({
-                where: {courseId: course.id, userId: loggedInId}
+                where: { courseId: course.id, userId: loggedInId }
             })
 
             if (userCourse) {
                 responseCourse.isEnrolled = true;
             }
+            responseCourse.lessons?.map((lesson, item) => {
+                if (item === 0) {
+                    lesson.isOpen = true;
+                }
+                if (lesson?.tests.length === 0 && item < responseCourse.lessons.length - 1) {
+                    lesson.isOpen = true
+                    responseCourse.lessons[item + 1].isOpen = true
+                }
+                else {
+                    lesson?.tests?.map(test => {
+                        test?.userTests?.map(userTest => {
+                            if (userTest.isPass === true && userTest.userId === user.id) {
+                                lesson.isOpen = true
+                                responseCourse.lessons[item + 1].isOpen = true
+                                return
+                            }
+                        })
+
+                    })
+                }
+            })
         }
 
         return responseCourse;
     }
 
     async enrollCourse(user: IUserCredential, courseId: number) {
-        console.log(user)
         const course = await Course.findOne({
             where: { id: courseId, }
         })
@@ -308,6 +412,38 @@ export default class CourseService {
         return userCourse
     }
 
+    async getByAdmin(pageRequest: PageRequest) {
+        const { page, size, courseName, categoryId } = pageRequest
+        var nameCondition = courseName ? { name:
+            sequelize.where(sequelize.fn('lower', sequelize.col('Course.name')),
+            'LIKE', '%' +  courseName.toLowerCase() + '%')} : {};
+        var categoryIdCondition = categoryId ? { id: categoryId } : {}
+
+        const result = await Course.findAndCountAll({
+            where: {
+                [Op.and]: [
+                    { isPublic: true },
+                    nameCondition
+                ]
+            },
+            include: [{
+                model: Category,
+                attributes: ['name', 'id'],
+                where: categoryIdCondition
+            }, {
+                model: User,
+                as: 'teacher',
+                attributes: ['name', 'id']
+            }],
+            limit: size,
+            offset: page * size
+        })
+        return {
+            courses: result.rows,
+            count: result.count
+        }
+    }
+
     private responseCourse(course: Course) {
         return {
             ...course.toJSON(),
@@ -326,6 +462,7 @@ export default class CourseService {
                 name: course.teacher.name,
                 email: course.teacher.email,
                 avatarLink: course.teacher.avatarLink,
+                nameLink: course.teacher.nameLink
             }
         }
     }

@@ -1,14 +1,15 @@
 require('dotenv').config();
-import App from "app";
-import { GlobalErrorHandler } from "middlewares/GlobalErrorHandler";
-import { CurrentUserChecker, PreAuthorize } from "middlewares/JwtFilter";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import App from './app';
+import { GlobalErrorHandler } from "./middlewares/GlobalErrorHandler";
+import { CurrentUserChecker, PreAuthorize } from "./middlewares/JwtFilter";
 import { useContainer, useExpressServer} from "routing-controllers";
 import Container from "typedi";
-
 import Websocket from './websocket/websocket'
 import MessageSocket from './websocket/message.socket'
 import "reflect-metadata"
-import sequelize from "models";
+import sequelize from "./models/index";
 
 useContainer(Container);
 
@@ -25,7 +26,7 @@ const newApp = useExpressServer(app.getServer(), {
     currentUserChecker: CurrentUserChecker
 })
 
-const port = process.env.APP_PORT || 1012;
+const port = process.env.APP_PORT || 5000;
 
 const httpServer = require('http').Server(newApp);
 const io = Websocket.getInstance(httpServer);

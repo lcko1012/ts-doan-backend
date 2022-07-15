@@ -10,28 +10,28 @@ export default class PageRequest {
     page: number;
 
     @IsOptional()
-    // @IsNotEmpty({message: "Keyword must not be empty"})
     keyword: string;
 
     @IsOptional()
-    // @IsNotEmpty({message: "Phát âm không được để trống"})
     phonetic: string;
 
     @IsOptional()
     kindId: number;    
 
     @IsOptional()
-    // @IsNotEmpty({message: "Nghĩa không được để trống"})
     meaning: string;
 
     @IsOptional()
     courseName: string;
 
     @IsOptional()
-    topicId: number;
+    categoryId: number;
 
     @IsOptional()
     folderName: string;
+
+    @IsOptional()
+    filterCategory: number[];
 }
 
 export class UserTestRequestDto {

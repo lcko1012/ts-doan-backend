@@ -17,10 +17,14 @@ class Idiom extends Model {
     })
     id: number;
     
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     name: string
 
-    @Column
+    @Column({
+        type: DataType.TEXT
+    })
     mean: string
 
     @ForeignKey(() => WordKind)

@@ -3,7 +3,7 @@ import PageRequest, { UserListInCourse } from "dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
-import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
+import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Params, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
 import CourseService from "services/CourseService";
 import { Service } from "typedi";
 
@@ -118,21 +118,30 @@ export default class CourseController {
     @Get('/category/:slug')
     async getByCategory(
             @Param('slug') slug: string, 
+            @QueryParams() params: PageRequest,
             @Res() res: Response
     ) {
-        const courses = await this.courseService.getCoursesByCategory(slug);
+        const courses = await this.courseService.getCoursesByCategory(slug, params);
         return res.send(courses);
     }
 
-    @Get('/:slug')
+    @Get('/search')
+    async searchByCourseName(
+        @QueryParams() params: PageRequest,
+        @Res() res: Response
+) {
+    const courses = await this.courseService.searchByCourseName(params);
+    return res.send(courses);
+}
+
+    @Get('/by_slug/:slug')
     async getCourse(
         @Param('slug') slug: string,
         @CurrentUser({required: false}) user: IUserCredential,
         @Res() res: Response
     ) 
     {
-        const loggedIntId = user?.id
-        const course = await this.courseService.getCourse(slug, loggedIntId);
+        const course = await this.courseService.getCourse(slug, user);
         return res.send(course)
     }
 
@@ -147,5 +156,16 @@ export default class CourseController {
         return {
             message: 'Đăng ký thành công'
         }
+    }
+
+    //admin
+    @Get('/admin')
+    @Authorized('ROLE_ADMIN')
+    async getCoursesByAdmin(@Res() res: Response, @QueryParams() pageRequest: PageRequest){
+        const result = await this.courseService.getByAdmin(pageRequest);
+        return res.send({
+            courses: result.courses,
+            count: result.count
+        })
     }
 }

@@ -1,5 +1,6 @@
 import { Column, DataType, Model, Table, ForeignKey, BelongsTo, HasMany, CreatedAt, UpdatedAt, BelongsToMany, Index } from "sequelize-typescript";
 import Category from "./Category";
+import Feedback from "./Feedback";
 import Lesson from "./Lesson";
 import User from "./User";
 import UserCourse from "./UserCourse";
@@ -60,6 +61,9 @@ class Course extends Model {
 
     @BelongsTo(() => User, 'teacherId')
     teacher: User;
+
+    @HasMany(() => Feedback)
+    feedbacks: Feedback[]
 
     @CreatedAt
     @Column({

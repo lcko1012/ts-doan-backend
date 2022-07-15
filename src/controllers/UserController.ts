@@ -76,4 +76,14 @@ export default class UserController {
             message: 'Cập nhật thành công'
         })
     }
+
+    @Get('/teacher/:nameLink')
+    async getTeacherInfo(
+        @Param('nameLink') nameLink: string,
+        @Res() res: Response
+    ){
+        if (!nameLink) throw new BadRequestError('Thiếu thông tin tên giảng viên')
+        const infor = await this.userService.getTeacherInfo(nameLink)
+        return res.send(infor)
+    }
 }

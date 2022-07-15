@@ -20,6 +20,7 @@ import UserCourse from "models/UserCourse";
 import LessonWord from "models/LessonWord";
 import FolderWord from "models/FolderWord";
 import Folder from "models/Folder";
+import { KindType } from "interfaces/Word";
 
 @Service()
 export default class WordService {
@@ -29,7 +30,8 @@ export default class WordService {
     ) { }
 
     public async createDictionary() {
-        fs.readFile(__dirname + '../../dictionary/dict_0.json', 'utf-8', async (err, data) => {
+        for (var stt = 92; stt <= 95; stt++){
+        fs.readFile(__dirname + `../../dictionary/dict_${stt}.json`, 'utf-8', async (err, data) => {
             if (err) {
                 console.log(err)
                 throw new BadRequestError("Đã có lỗi xảy ra")
@@ -39,49 +41,63 @@ export default class WordService {
                 try {
                     await sequelize.transaction(async transaction => {
                         for (const item of databases) {
-                            const word = await Word.findOrCreate({
+                            const existedWord = await Word.findOne({
                                 where: {
                                     vocab: item.vocab,
-                                },
-                                defaults: { phonetic: item.phonetic },
-                                transaction
+                                    isDict: true
+                                }
                             })
 
-                            for (const kind of item.kinds) {
-                                kind.idioms.map(idiom => {
-                                    idiom.mean = JSON.stringify(idiom.mean)
-                                })
+                            if (existedWord) continue
 
-                                const existedKind = await Kind.findOrCreate({
-                                    where: { name: kind.name },
-                                    defaults: { name: kind.name },
-                                })
+                            const word = await Word.create({
+                                vocab: item.vocab,
+                                phonetic: item.phonetic,
+                                isDict: true,
+                            }, { transaction })
 
-                                await WordKind.create({
-                                    wordId: word[0].id,
-                                    kindId: existedKind[0].id,
-                                    meanings: kind.meanings,
-                                    idioms: kind.idioms,
+                            try {
+                                for (const kind of item.kinds) {
+                                    kind.idioms.map(idiom => {
+                                        idiom.mean = JSON.stringify(idiom.mean)
+                                    })
 
-                                }, {
-                                    include: [{
-                                        model: Meaning,
-                                        include: [{ model: Example }]
+                                    const existedKind = await Kind.findOrCreate({
+                                        where: { name: kind.name },
+                                        defaults: { name: kind.name },
+                                    })
+
+                                    await WordKind.create({
+                                        wordId: word.id,
+                                        kindId: existedKind[0].id,
+                                        meanings: kind.meanings,
+                                        idioms: kind.idioms,
                                     }, {
-                                        model: Idiom,
-                                    }],
-                                    transaction
-                                })
+                                        include: [{
+                                            model: Meaning,
+                                            include: [{ model: Example }]
+                                        }, {
+                                            model: Idiom,
+                                        }],
+                                        transaction
+                                    })
+                                }
+                            } catch (e) {
+                                transaction.rollback()
+                                console.log(e)
+                                throw new BadRequestError("error")
                             }
                         }
                     })
-
                 } catch (err) {
                     // if (transaction) await transaction.rollback()
                     throw new BadRequestError("Đã có lỗi xảy ra")
+                    console.log(err)
                 }
+
             }
         })
+        }
     }
 
     public async searchWord(word: string) {
@@ -201,7 +217,7 @@ export default class WordService {
 
         const { vocab, phonetic, meaning, kindId } = newWord;
         const existedWord = await LessonWord.findOne({
-            where: {lessonId: lesson.id},
+            where: { lessonId: lesson.id },
             include: [{
                 model: Word,
                 attributes: [],
@@ -218,7 +234,7 @@ export default class WordService {
         })
 
         return word;
-        
+
     }
 
     public async addExistedWordToLesson(
@@ -331,7 +347,7 @@ export default class WordService {
                 ]
             }, {
                 model: Lesson,
-                where: {id: lesson.id},
+                where: { id: lesson.id },
                 attributes: []
             }]
         })
@@ -341,19 +357,19 @@ export default class WordService {
 
     async addExistedWordToFolder(folderId: number, wordId: number, user: IUserCredential) {
         const word = await Word.findOne({
-            where: {id: wordId}
+            where: { id: wordId }
         })
 
         if (!word) throw new BadRequestError('Từ vựng không tồn tại')
 
         const folder = await Folder.findOne({
-            where: {id: folderId, userId: user.id}
+            where: { id: folderId, userId: user.id }
         })
 
         if (!folder) throw new BadRequestError('Thư mục không tồn tại')
 
         const folderWord = await FolderWord.findOne({
-            where: {wordId, folderId}
+            where: { wordId, folderId }
         })
 
         if (folderWord) throw new BadRequestError('Từ vựng này đã tồn tại trong thư mục')
@@ -365,22 +381,22 @@ export default class WordService {
 
     async deleteWordInFolder(wordId: number, folderId: number, user: IUserCredential) {
         const folderWord = await FolderWord.findOne({
-            where: {wordId, folderId},
+            where: { wordId, folderId },
             include: [{
                 model: Folder,
-                where: {userId: user.id}
+                where: { userId: user.id }
             }]
         })
         if (!folderWord) throw new BadRequestError('Không tồn tại từ vựng hoặc thư mục')
 
         await FolderWord.destroy({
-            where: {wordId, folderId}
+            where: { wordId, folderId }
         })
     }
 
     private async checkExistedLessonWord(lessonId: number, wordId: number) {
         const lessonWord = await LessonWord.findOne({
-            where: {lessonId, wordId}
+            where: { lessonId, wordId }
         })
 
         if (!lessonWord) throw new BadRequestError('Từ vựng không tồn tại trong bài học')

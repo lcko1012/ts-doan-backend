@@ -18,7 +18,7 @@ export default class Test extends Model {
    
     @Column({
         type: DataType.DOUBLE,
-        defaultValue: 100
+        defaultValue: 0
     })
     passingScore: number;
 
