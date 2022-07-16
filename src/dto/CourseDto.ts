@@ -23,3 +23,11 @@ export class CourseUpdateBasicDto {
 
     isPublic: boolean;
 }
+
+export class ReportCourseDto {
+    @IsNotEmpty()
+    courseId: number;
+
+    @IsNotEmpty()
+    content: string;
+}

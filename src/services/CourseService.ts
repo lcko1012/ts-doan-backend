@@ -3,7 +3,7 @@ import { HttpError, NotFoundError, UnauthorizedError, ForbiddenError, Param, Cur
 import { Service } from "typedi";
 import CourseRepository from "repository/CourseRepository";
 import Course from "models/Course";
-import { CourseUpdateBasicDto, CouseCreatingDto } from "dto/CourseDto";
+import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "dto/CourseDto";
 import StringUtils from "utils/StringUtils";
 import PageRequest, { UserListInCourse } from "dto/PageDto";
 import { Op } from "sequelize";
@@ -19,12 +19,13 @@ import UserCourse from "models/UserCourse";
 import Test from "models/Test";
 import moment from "moment";
 import UserTest from "models/UserTest";
-
+import MailSender from "utils/MailSender";
 
 @Service()
 export default class CourseService {
     constructor(
         private courseRepository: CourseRepository,
+        private mailSender: MailSender
     ) { }
 
     async getCourses(pageRequest: PageRequest) {
@@ -442,6 +443,34 @@ export default class CourseService {
             courses: result.rows,
             count: result.count
         }
+    }
+
+    async sendMailReportCourseByAdmin(data: ReportCourseDto) {
+        const course = await Course.findOne({
+            where: {id: data.courseId},
+            include: [{
+                model: User,
+                as: 'teacher',
+            }]
+        })
+        if (!course) throw new NotFoundError("Không tìm thấy khóa học")
+        this.mailSender.sendMailReportCourseByAdmin(course.teacher.email, course.name, data.content);
+    }
+
+    async deleteCourseByAdmin(courseId: number) {
+        const course = await Course.findOne({
+            where: {id: courseId},
+            include: [{
+                model: User,
+                as: 'teacher',
+            }]
+        })
+        if (!course) throw new NotFoundError("Không tìm thấy khóa học")
+        await Course.destroy({
+            where: {id: courseId}
+        })
+        const content = 'Khóa học "' + course.name + '" đã bị xóa bởi quản trị viên'
+        this.mailSender.sendMailReportCourseByAdmin(course.teacher.email, course.name, content);
     }
 
     private responseCourse(course: Course) {

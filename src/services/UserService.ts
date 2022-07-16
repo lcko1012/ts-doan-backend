@@ -5,7 +5,7 @@ import User from "models/User";
 import Course from "models/Course";
 import Test from "models/Test";
 import Lesson from "models/Lesson";
-import PageRequest from "dto/PageDto";
+import PageRequest, { UserListParams } from "dto/PageDto";
 import { Op } from "sequelize";
 import Folder from "models/Folder";
 import Word from "models/Word";
@@ -47,22 +47,33 @@ export default class UserService {
         return result
     }
 
-    public async getWithTests(userId: number) {
-        const result = await UserTest.findAll({
-            where: {userId},
+    public async getWithTests(userId: number, params: PageRequest) {
+        const {page, size, courseId} = params;
+        console.log(courseId)
+        const courseCondition = courseId ? {
+            'lesson.courseId' : courseId} : null;
+
+        const result = await UserTest.findAndCountAll({
+            where: {userId: userId},
             include: [{
                 model: Test,
+                where: courseCondition,
                 include: [{
                     model: Lesson,
-                    attributes: ['name'],
+                    attributes: ['name', 'id', 'courseId'],
                     include: [{
                         model: Course,
-                        attributes: ['name']
+                        attributes: ['name', 'id'],
                     }]
                 }]
-            }]
+            }],
+            offset: page * size,
+            limit: size,
         })
-        return result
+        return {
+            tests: result.rows,
+            count: result.count,
+        }
     }
 
     public async getWithFolders(userId: number, pageRequest: PageRequest) {
@@ -106,7 +117,6 @@ export default class UserService {
     }
 
     async update(currentUser: IUserCredential, data: UserUpdate){
-        console.log(data.about)
         if (data.nameLink) {
             const user = await User.findOne({
                 where: {nameLink: data.nameLink, id: {[Op.ne]: currentUser.id}}
@@ -166,6 +176,41 @@ export default class UserService {
                 }
             })
         };
+    }
+
+    async getUsersByAdmin(params: UserListParams) {
+        const {page, size, name, role, locked, email} = params;
+        const nameCondition = name ? {name: 
+                                    sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), 
+                                                    'LIKE', '%' + name.toLowerCase() + '%')} : null;
+        const roleCondition = role ? {role: role} : null;
+        const emailCondition = email ? {email:
+                                    sequelize.where(sequelize.fn('LOWER', sequelize.col('email')),
+                                                    'LIKE', '%' + email.toLowerCase() + '%')} : null;
+        const lockedCondition = locked ? {locked: locked} : null;
+        
+        const result = await User.findAndCountAll({
+            where: {...nameCondition, ...roleCondition, ...emailCondition, ...lockedCondition},
+            offset: page * size,
+            limit: size,
+            attributes: {
+                exclude: ['password', 'registerToken']
+            }
+        })
+        return {
+            users: result.rows,
+            total: result.count,
+        }
+    }
+
+    async lockAccount (userId: number) { 
+        const user = await User.findOne({
+            where: {id: userId}
+        })
+        if (!user) throw new NotFoundError("Không tìm thấy tài khoản");
+        await user.update({locked: !user.locked})
+        if (user.locked) return "Tài khoản đã bị khóa"
+        return "Tài khoản đã mở khóa"
     }
 
     private sanitizaUser(user: User) {

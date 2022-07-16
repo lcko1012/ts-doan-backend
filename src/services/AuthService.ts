@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User";
 import MailSender from "../utils/MailSender";
 import { StatusCodes } from "http-status-codes";
-import { HttpError, NotFoundError, UnauthorizedError } from "routing-controllers";
+import { BadRequestError, HttpError, NotFoundError, UnauthorizedError } from "routing-controllers";
 import { Service } from "typedi";
 import JwtService from "./JwtService";
 import PasswordResetToken from "../models/PasswordResetToken";
@@ -33,7 +33,7 @@ export default class AuthService {
             const hashedPassword = await this.encryptPassword(password);
 
             await User.create({
-                email,
+                email: email.toLowerCase(),
                 name,
                 password: hashedPassword,
                 registerToken,
@@ -69,9 +69,9 @@ export default class AuthService {
     public login = async (email: string, password: string) => {
         const user = await this.userRepository.findByEmail(email);
 
-        if (!user) {
-            throw new UnauthorizedError("Invalid email or password");
-        }
+        if (!user) throw new UnauthorizedError("Invalid email or password");
+
+        if (user.locked) throw new BadRequestError("Tài khoản của bạn đã bị khóa")
         
         const matchedPassword = await bcrypt.compare(password, user.password);
         if (!matchedPassword) {

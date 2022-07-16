@@ -47,7 +47,6 @@ export default class WordService {
                                     isDict: true
                                 }
                             })
-
                             if (existedWord) continue
 
                             const word = await Word.create({

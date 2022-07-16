@@ -32,6 +32,9 @@ export default class PageRequest {
 
     @IsOptional()
     filterCategory: number[];
+
+    @IsOptional()
+    courseId: number;
 }
 
 export class UserTestRequestDto {
@@ -73,4 +76,29 @@ export class UserListInCourse {
     
     @IsOptional()
     joinedDate?: string;
+}
+
+export class UserListParams {
+    @IsNotEmpty()
+    @Min(0, {message: "Size must be greater than or equal to 0"})
+    size: number;
+
+    @IsNotEmpty()
+    @Min(0, {message: "Page number must be greater than or equal to 0"})
+    page: number;
+
+    @IsOptional()
+    name?: string;
+
+    @IsOptional()
+    email?: string;
+
+    @IsOptional()
+    role?: string;
+
+    @IsOptional()
+    locked?: string;
+    
+    // @IsOptional()
+    // joinedDate?: string;
 }

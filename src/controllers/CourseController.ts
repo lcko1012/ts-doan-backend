@@ -1,4 +1,4 @@
-import { CourseUpdateBasicDto, CouseCreatingDto } from "dto/CourseDto";
+import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "dto/CourseDto";
 import PageRequest, { UserListInCourse } from "dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -166,6 +166,31 @@ export default class CourseController {
         return res.send({
             courses: result.courses,
             count: result.count
+        })
+    }
+
+    @Post('/report/admin')
+    @Authorized('ROLE_ADMIN')
+    async sendMailReportCourseByAdmin(
+        @Body() data: ReportCourseDto,
+        @Res() res: Response
+    ){
+        
+        await this.courseService.sendMailReportCourseByAdmin(data);
+        return res.send({
+            message: 'Gửi báo cáo thành công'
+        })
+    }
+
+    @Delete('/:id/admin')
+    @Authorized('ROLE_ADMIN')
+    async deleteCourseByAdmin(
+        @Param('id') id: number,
+        @Res() res: Response
+    ){
+        await this.courseService.deleteCourseByAdmin(id);
+        return res.send({
+            message: 'Xóa khóa học thành công'
         })
     }
 }

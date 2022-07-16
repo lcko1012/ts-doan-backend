@@ -4,7 +4,7 @@ import { Authorized, BadRequestError, CurrentUser,Put, Get, HttpCode, JsonContro
 import { StatusCodes } from "http-status-codes";
 import IUserCredential from "interfaces/IUserCredential";
 import {Response} from 'express'
-import PageRequest from "dto/PageDto";
+import PageRequest, { UserListParams } from "dto/PageDto";
 import UserUpdate from "dto/UserDto";
 
 @JsonController()
@@ -36,10 +36,14 @@ export default class UserController {
     @Authorized()
     async getWithTests(
         @CurrentUser() currentUser: IUserCredential,
+        @QueryParams() params: PageRequest,
         @Res() res: Response
     ){
-        const result = await this.userService.getWithTests(currentUser.id);
-        return res.send(result);
+        const result = await this.userService.getWithTests(currentUser.id, params);
+        return res.send({
+            result: result.tests,
+            count: result.count
+        });
     }
 
     @Get('/user/folder')
@@ -85,5 +89,27 @@ export default class UserController {
         if (!nameLink) throw new BadRequestError('Thiếu thông tin tên giảng viên')
         const infor = await this.userService.getTeacherInfo(nameLink)
         return res.send(infor)
+    }
+
+    @Get('/users/admin')
+    @Authorized('ROLE_ADMIN')
+    async getUsersByAdmin(
+        @QueryParams() userListParams: UserListParams,
+        @Res() res: Response
+    ){
+        const result = await this.userService.getUsersByAdmin(userListParams);
+        return res.send(result);
+    }
+
+    @Put('/user/lock/:id')
+    @Authorized('ROLE_ADMIN')
+    async lockAccountByAdmin(
+        @Param('id') id: number,
+    ){
+        if (!id) throw new BadRequestError('Thiếu thông tin id')
+        const msg = await this.userService.lockAccount(id);
+        return {
+            message: msg
+        }
     }
 }
