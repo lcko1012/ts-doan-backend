@@ -14,12 +14,13 @@ import IUserCredential from "interfaces/IUserCredential";
 import UserUpdate from "dto/UserDto";
 import bcrypt from "bcrypt";
 import sequelize from "models";
-
+import MailSender from "utils/MailSender";
 
 @Service()
 export default class UserService {
     constructor(
         private userRepository: UserRepository,
+        private mailSender: MailSender
     ){}
 
     public async getUserByEmail(email: string) {
@@ -209,8 +210,16 @@ export default class UserService {
         })
         if (!user) throw new NotFoundError("Không tìm thấy tài khoản");
         await user.update({locked: !user.locked})
-        if (user.locked) return "Tài khoản đã bị khóa"
-        return "Tài khoản đã mở khóa"
+        if (user.locked) {
+            let content = `<h3>Tài khoản của bạn đã bị khóa</h3>`
+            this.mailSender.sendLockAccount(user.email, content)
+            return "Tài khoản đã bị khóa"
+        }
+        else {
+            let content = `<h3>Tài khoản của bạn đã được mở khóa</h3>`
+            this.mailSender.sendLockAccount(user.email, content)
+            return "Tài khoản đã mở khóa"
+        }
     }
 
     private sanitizaUser(user: User) {

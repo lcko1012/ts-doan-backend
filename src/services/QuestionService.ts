@@ -38,6 +38,16 @@ export default class QuestionService {
             testId: question.testId,
         })
 
+        //update test total score
+        const totalScore = await Question.sum('score', {
+            where: { testId: question.testId }
+        })
+        await Test.update({
+            totalScore
+        }, {
+            where: { id: question.testId }
+        })
+
         return newQuestion
     }
 

@@ -86,4 +86,15 @@ export default class MailSender {
         `
         this.sendMail(email, subject, html);
     }
+
+    public sendLockAccount = async (email: string, content: string) => {
+        const subject = "Thông báo về tài khoản của bạn từ KStudy";
+        const html = `
+        <div style="max-width: 700px; margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+        <h2 style="text-align: center; text-transform: uppercase;color: teal;">Chào bạn</h2>
+        <p>${content}</p>
+        </div>
+        `
+        this.sendMail(email, subject, html);
+    }
 }

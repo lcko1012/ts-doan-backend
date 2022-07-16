@@ -151,29 +151,38 @@ export default class TestService {
             const question = questions.find(q => q.id === questionSubmit.questionId);
             if (!question) throw new NotFoundError('Câu hỏi không tồn tại')
             if (question.type === "TYPE_MULTIPLECHOICE") {
-                const correctAnswer = question.answers.find(answer => answer.correct);
-                return correctAnswer.id === questionSubmit.answerId ? acc + question.score : acc;
+                //find answers correct
+                const correctAnswers = question.answers.filter(answer => answer.correct);
+                // compare answers correct and student submit
+                const studentAnswers = questionSubmit.answerArray;
+                const correct = correctAnswers.every(answer => studentAnswers.includes(answer.id));
+                return correct ? acc + question.score : acc;
+                // const correctAnswer = question.answers.find(answer => answer.correct);
+                // return correctAnswer.id === questionSubmit.answerId ? acc + question.score : acc;
             }
             else if (question.type === "TYPE_TEXT") {
                 const correctAnswer = question.answers.find(a => a.correct);
-                return correctAnswer.content.toLowerCase() === questionSubmit.answerContent.toLowerCase() ? acc + question.score : acc;
+                // compare answers correct and student submit, content of correct is spreaded by ,
+                const correct = correctAnswer.content.split(',').some(content => content.toLowerCase() === questionSubmit.answerContent.toLowerCase());
+                return correct ? acc + question.score : acc;
             }
 
             return acc;
         }, 0);
        
-
         const details = questionSubmits.map(questionSubmit => {
             const question = questions.find(q => q.id === questionSubmit.questionId);
             if (!question) throw new NotFoundError('Câu hỏi không tồn tại')
             var answer;
             if (question.type === "TYPE_TEXT"){
-                answer = question.answers.find(a => a.content.toLowerCase() === questionSubmit.answerContent.toLowerCase());
+                const correctAnswer = question.answers.find(a => a.correct);
+                // compare answers correct and student submit, content of correct is spreaded by ,
+                answer = correctAnswer.content.split(',').some(content => content.toLowerCase() === questionSubmit.answerContent.toLowerCase());
             }
-            else answer = question.answers.find(a => a.id === questionSubmit.answerId);
+            else answer = question.answers.every(a => questionSubmit.answerArray.includes(a.id));
             return {
                 questionId: question.id,
-                answerSubumitId: questionSubmit.answerId,
+                answerSubumitId: questionSubmit.answerArray,
                 answerSubmitContent: questionSubmit.answerContent,
                 correct: answer ? answer.correct : false,
                 question

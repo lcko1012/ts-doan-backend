@@ -24,7 +24,8 @@ export class TestUpdateDto extends TestCreateDto {
 class QuestionSubmit {
     @IsNotEmpty()
     questionId: number;
-    answerId: number;
+    // answerId: number;'
+    answerArray: number[];
     answerContent: string;
 }
 

@@ -365,8 +365,10 @@ export default class CourseService {
                 }
                 else {
                     lesson?.tests?.map(test => {
-                        test?.userTests?.map(userTest => {
-                            if (userTest.isPass === true && userTest.userId === user.id) {
+                        test?.userTests?.map((userTest) => {
+                            if (userTest.isPass === true && userTest.userId === user.id &&
+                                item < responseCourse.lessons.length - 1) 
+                            {
                                 lesson.isOpen = true
                                 responseCourse.lessons[item + 1].isOpen = true
                                 return
