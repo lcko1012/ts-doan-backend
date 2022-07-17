@@ -1,10 +1,10 @@
 import { StatusCodes } from "http-status-codes";
-import { audioUploadOptions, fileUploadOptions, videoUploadOptions } from "middlewares/FileUploadMiddleware";
+import { audioUploadOptions, fileUploadOptions, videoUploadOptions } from "../middlewares/FileUploadMiddleware";
 import { Authorized, CurrentUser, HttpCode, JsonController, Post, Req, UploadedFile } from "routing-controllers";
-import StorageService from "services/StorageServices";
+import StorageService from "../services/StorageServices";
 import { Service } from "typedi";
 import fs from "fs";
-import IUserCredential from "interfaces/IUserCredential";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @JsonController('/upload')
 @Service()

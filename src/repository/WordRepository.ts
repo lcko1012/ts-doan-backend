@@ -2,13 +2,12 @@
 import Word from "../models/Word";
 import { Service } from "typedi";
 import { Op } from "sequelize";
-import sequelize from "../models/index";
 import Meaning from "../models/Meaning";
-import Idiom from "models/Idiom";
-import Example from "models/Example";
+import Idiom from "../models/Idiom";
+import Example from "../models/Example";
 import Kind from "../models/Kind";
-import WordKind from "models/WordKind";
-import Lesson from "models/Lesson";
+import WordKind from "../models/WordKind";
+import Lesson from "../models/Lesson";
 
 @Service()
 export default class WordRepository {

@@ -1,9 +1,9 @@
-import { ContentCreateingDto } from "dto/ContentDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Content from "models/Content";
-import Course from "models/Course";
-import Lesson from "models/Lesson";
-import UserCourse from "models/UserCourse";
+import { ContentCreateingDto } from "../dto/ContentDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Content from "../models/Content";
+import Course from "../models/Course";
+import Lesson from "../models/Lesson";
+import UserCourse from "../models/UserCourse";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 

@@ -1,7 +1,7 @@
-import IUserCredential from "interfaces/IUserCredential";
-import Course from "models/Course";
-import User from "models/User";
-import UserCourse from "models/UserCourse";
+import IUserCredential from "../interfaces/IUserCredential";
+import Course from "../models/Course";
+import User from "../models/User";
+import UserCourse from "../models/UserCourse";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Op } from "sequelize";
 import { Service } from "typedi";

@@ -1,13 +1,13 @@
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, HttpError, NotFoundError, UnauthorizedError } from "routing-controllers";
 import { Service } from "typedi";
-import CourseRepository from "repository/CourseRepository";
-import Course from "models/Course";
-import { CouseCreatingDto } from "dto/CourseDto";
-import StringUtils from "utils/StringUtils";
-import PageRequest from "dto/PageDto";
+import CourseRepository from "../repository/CourseRepository";
+import Course from "../models/Course";
+import { CouseCreatingDto } from "../dto/CourseDto";
+import StringUtils from "../utils/StringUtils";
+import PageRequest from "../dto/PageDto";
 import { Op } from "sequelize";
-import Category from "models/Category";
+import Category from "../models/Category";
 
 
 @Service()

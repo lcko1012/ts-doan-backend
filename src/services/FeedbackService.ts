@@ -1,9 +1,9 @@
-import { FeedbackDto } from "dto/FeedbackDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Course from "models/Course";
-import Feedback from "models/Feedback";
-import User from "models/User";
-import UserCourse from "models/UserCourse";
+import { FeedbackDto } from "../dto/FeedbackDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Course from "../models/Course";
+import Feedback from "../models/Feedback";
+import User from "../models/User";
+import UserCourse from "../models/UserCourse";
 import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 

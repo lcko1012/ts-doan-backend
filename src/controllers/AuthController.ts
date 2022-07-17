@@ -5,8 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import RegisterDto from "../dto/RegisterDto";
 import LoginDto from "../dto/LoginDto";
 import AuthService from "../services/AuthService";
-import PasswordDto from "dto/PasswordDto";
-
+import PasswordDto from "../dto/PasswordDto";
 
 @JsonController('/auth')
 @Service()

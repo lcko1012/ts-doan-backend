@@ -6,7 +6,7 @@ import Role from "../models/Role";
 import PageRequest from "../dto/PageDto";
 import { CreateWordDto, ExampleRequest, UpdateWordDto } from "../dto/WordDto";
 import { Response } from 'express'
-import IUserCredential from "interfaces/IUserCredential";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @JsonController('/word')
 @Service()

@@ -1,12 +1,12 @@
-import { MessageDto } from "dto/MessageDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Message from "models/Message";
+import { MessageDto } from "../dto/MessageDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Message from "../models/Message";
 import { Op, Sequelize } from "sequelize";
 import { Service } from "typedi";
-import Websocket from "websocket/websocket";
-import User from "models/User"
-import sequelize from "models";
-import { getUsers, getUsersInRoom } from "websocket/users-global";
+import Websocket from "../websocket/websocket";
+import User from "../models/User"
+import sequelize from "../models";
+import { getUsers, getUsersInRoom } from "../websocket/users-global";
 
 @Service()
 export default class MessageService {

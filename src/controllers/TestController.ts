@@ -1,7 +1,7 @@
-import TestCreateDto, { TestSubmitDto, TestUpdateDto } from "dto/TestDto";
-import IUserCredential from "interfaces/IUserCredential";
+import TestCreateDto, { TestSubmitDto, TestUpdateDto } from "../dto/TestDto";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, Body, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Params, Post, Put, Res } from "routing-controllers";
-import TestService from "services/TestService";
+import TestService from "../services/TestService";
 import { Service } from "typedi";
 import { Response } from 'express'
 

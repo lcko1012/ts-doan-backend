@@ -1,7 +1,7 @@
 import { Body, Get, JsonController, Param, Params, Put, QueryParams, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from 'express'
-import KindService from "services/KindService";
+import KindService from "../services/KindService";
 
 @JsonController('/kind')
 @Service()

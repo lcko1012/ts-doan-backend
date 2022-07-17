@@ -1,5 +1,5 @@
 import { Body, Delete, JsonController, Param, Post } from "routing-controllers";
-import WordKindService from "services/WordKindService";
+import WordKindService from "../services/WordKindService";
 import { Service } from "typedi";
 
 @JsonController('/word_kind')

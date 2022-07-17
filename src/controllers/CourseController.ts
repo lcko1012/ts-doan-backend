@@ -1,10 +1,10 @@
-import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "dto/CourseDto";
-import PageRequest, { UserListInCourse } from "dto/PageDto";
+import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "../dto/CourseDto";
+import PageRequest, { UserListInCourse } from "../dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import IUserCredential from "interfaces/IUserCredential";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Params, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
-import CourseService from "services/CourseService";
+import CourseService from "../services/CourseService";
 import { Service } from "typedi";
 
 @JsonController('/course')

@@ -1,16 +1,16 @@
-import { LessonCreatingDto } from "dto/LessonDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Course from "models/Course";
-import Example from "models/Example";
-import Idiom from "models/Idiom";
-import Kind from "models/Kind";
-import Lesson from "models/Lesson";
-import Meaning from "models/Meaning";
-import Word from "models/Word";
-import WordKind from "models/WordKind";
+import { LessonCreatingDto } from "../dto/LessonDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Course from "../models/Course";
+import Example from "../models/Example";
+import Idiom from "../models/Idiom";
+import Kind from "../models/Kind";
+import Lesson from "../models/Lesson";
+import Meaning from "../models/Meaning";
+import Word from "../models/Word";
+import WordKind from "../models/WordKind";
 import { NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
-import StringUtils from "utils/StringUtils";
+import StringUtils from "../utils/StringUtils";
 
 @Service()
 export default class LessonService {

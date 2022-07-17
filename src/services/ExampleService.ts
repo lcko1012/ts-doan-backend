@@ -1,6 +1,5 @@
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
-import { ExampleRequest } from "../dto/ExampleDto";
 import ExampleRepository from "../repository/ExampleRepository";
 
 

@@ -1,12 +1,11 @@
-import QuestionUpdateDto, { QuestionCreateDto } from "dto/QuestionDto";
-import IUserCredential from "interfaces/IUserCredential";
-import sequelize from "models";
-import Answer from "models/Answer";
-import Course from "models/Course";
-import Lesson from "models/Lesson";
-import Question from "models/Question";
-import Test from "models/Test";
-import User from "models/User";
+import QuestionUpdateDto, { QuestionCreateDto } from "../dto/QuestionDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import sequelize from "../models";
+import Answer from "../models/Answer";
+import Course from "../models/Course";
+import Lesson from "../models/Lesson";
+import Question from "../models/Question";
+import Test from "../models/Test";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 

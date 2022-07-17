@@ -1,7 +1,7 @@
-import { LessonCreatingDto } from "dto/LessonDto";
-import IUserCredential from "interfaces/IUserCredential";
+import { LessonCreatingDto } from "../dto/LessonDto";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Post, Put, Res } from "routing-controllers";
-import LessonService from "services/LessonService";
+import LessonService from "../services/LessonService";
 import { Service } from "typedi";
 import { Response } from 'express'
 

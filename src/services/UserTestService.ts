@@ -1,10 +1,8 @@
-import { UserTestRequestDto } from "dto/PageDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Answer from "models/Answer";
-import Question from "models/Question";
-import Test from "models/Test";
-import User from "models/User";
-import UserTest from "models/UserTest";
+import { UserTestRequestDto } from "../dto/PageDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Test from "../models/Test";
+import User from "../models/User";
+import UserTest from "../models/UserTest";
 import { NotFoundError } from "routing-controllers";
 import { Op } from "sequelize";
 import { Service } from "typedi";

@@ -1,8 +1,8 @@
-import { MeaningUpdateDto } from "dto/MeaningDto";
-import { ExampleType } from "dto/WordDto";
-import sequelize from "models";
-import Example from "models/Example";
-import Meaning from "models/Meaning";
+import { MeaningUpdateDto } from "../dto/MeaningDto";
+import { ExampleType } from "../dto/WordDto";
+import sequelize from "../models";
+import Example from "../models/Example";
+import Meaning from "../models/Meaning";
 import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 

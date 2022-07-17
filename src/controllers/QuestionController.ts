@@ -1,9 +1,9 @@
-import QuestionUpdateDto, {QuestionCreateDto} from "dto/QuestionDto";
-import IUserCredential from "interfaces/IUserCredential";
+import QuestionUpdateDto, {QuestionCreateDto} from "../dto/QuestionDto";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from "express";
-import QuestionService from "services/QuestionService";
+import QuestionService from "../services/QuestionService";
 
 @JsonController("/question")
 @Service()

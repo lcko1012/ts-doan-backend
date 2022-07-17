@@ -1,9 +1,9 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Get, JsonController, Param, Post, QueryParam, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from "express";
-import MessageService from "services/MessageService";
-import { MessageDto } from "dto/MessageDto";
-import IUserCredential from "interfaces/IUserCredential";
+import MessageService from "../services/MessageService";
+import { MessageDto } from "../dto/MessageDto";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @JsonController('/message')
 @Service()

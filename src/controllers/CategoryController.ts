@@ -1,12 +1,11 @@
-import { CategoryCreatingDto } from "dto/CategoryDto";
-import { CouseCreatingDto } from "dto/CourseDto";
-import PageRequest from "dto/PageDto";
+import { CategoryCreatingDto } from "../dto/CategoryDto";
+import { CouseCreatingDto } from "../dto/CourseDto";
+import PageRequest from "../dto/PageDto";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import IUserCredential from "interfaces/IUserCredential";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, Body, CurrentUser, Delete, Get, HttpCode, JsonController, Param, Patch, Post, Put, QueryParam, QueryParams, Res } from "routing-controllers";
-import CategoryService from "services/CategoryService";
-import CourseService from "services/CourseService";
+import CategoryService from "../services/CategoryService";
 import { Service } from "typedi";
 
 @JsonController('/category')

@@ -1,5 +1,5 @@
 import { Authorized, BadRequestError, Get, JsonController, Param } from "routing-controllers";
-import StorageService from "services/StorageServices";
+import StorageService from "../services/StorageServices";
 import { Service } from "typedi";
 
 @JsonController('/stream')

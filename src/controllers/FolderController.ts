@@ -1,7 +1,7 @@
-import { FolderCreateingDto } from "dto/FolderDto";
-import IUserCredential from "interfaces/IUserCredential";
+import { FolderCreateingDto } from "../dto/FolderDto";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Delete, Get, JsonController, Param, Post, Put, Res } from "routing-controllers";
-import FolderService from "services/FolderService";
+import FolderService from "../services/FolderService";
 import { Service } from "typedi";
 import {Response} from 'express'
 

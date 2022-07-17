@@ -2,10 +2,10 @@ import UserService from "../services/UserService";
 import { Service } from "typedi";
 import { Authorized, BadRequestError, CurrentUser,Put, Get, HttpCode, JsonController, Param, Params, QueryParam, QueryParams, Res, Body } from "routing-controllers";
 import { StatusCodes } from "http-status-codes";
-import IUserCredential from "interfaces/IUserCredential";
+import IUserCredential from "../interfaces/IUserCredential";
 import {Response} from 'express'
-import PageRequest, { UserListParams } from "dto/PageDto";
-import UserUpdate from "dto/UserDto";
+import PageRequest, { UserListParams } from "../dto/PageDto";
+import UserUpdate from "../dto/UserDto";
 
 @JsonController()
 @Service()

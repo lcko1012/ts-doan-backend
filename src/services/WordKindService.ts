@@ -1,4 +1,4 @@
-import WordKind from "models/WordKind";
+import WordKind from "../models/WordKind";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 

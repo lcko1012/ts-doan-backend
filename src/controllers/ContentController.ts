@@ -1,7 +1,7 @@
-import { ContentCreateingDto } from "dto/ContentDto";
-import IUserCredential from "interfaces/IUserCredential";
+import { ContentCreateingDto } from "../dto/ContentDto";
+import IUserCredential from "../interfaces/IUserCredential";
 import { Authorized, BadRequestError, Body, CurrentUser, JsonController, Param, Post, Put, Res, Get, QueryParam, Delete } from "routing-controllers";
-import ContentService from "services/ContentService";
+import ContentService from "../services/ContentService";
 import { Service } from "typedi";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";

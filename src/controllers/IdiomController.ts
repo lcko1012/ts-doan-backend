@@ -1,6 +1,6 @@
-import { IdiomDto } from "dto/WordDto";
+import { IdiomDto } from "../dto/WordDto";
 import { Body, Delete, JsonController, Param, Post, Put } from "routing-controllers";
-import IdiomService from "services/IdiomService";
+import IdiomService from "../services/IdiomService";
 import { Service } from "typedi";
 
 @JsonController('/idiom')

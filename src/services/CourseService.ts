@@ -1,25 +1,23 @@
-import { StatusCodes } from "http-status-codes";
 import { HttpError, NotFoundError, UnauthorizedError, ForbiddenError, Param, CurrentUser, BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
-import CourseRepository from "repository/CourseRepository";
-import Course from "models/Course";
-import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "dto/CourseDto";
-import StringUtils from "utils/StringUtils";
-import PageRequest, { UserListInCourse } from "dto/PageDto";
+import CourseRepository from "../repository/CourseRepository";
+import Course from "../models/Course";
+import { CourseUpdateBasicDto, CouseCreatingDto, ReportCourseDto } from "../dto/CourseDto";
+import StringUtils from "../utils/StringUtils";
+import PageRequest, { UserListInCourse } from "../dto/PageDto";
 import { Op } from "sequelize";
-import IUserCredential from "interfaces/IUserCredential";
-import User from "models/User";
-import Lesson from "models/Lesson";
-import Content from "models/Content";
-import Word from "models/Word";
-import sequelize from "models";
-import { Sequelize } from "sequelize-typescript";
-import Category from "models/Category";
-import UserCourse from "models/UserCourse";
-import Test from "models/Test";
+import IUserCredential from "../interfaces/IUserCredential";
+import User from "../models/User";
+import Lesson from "../models/Lesson";
+import Content from "../models/Content";
+import Word from "../models/Word";
+import sequelize from "../models";
+import Category from "../models/Category";
+import UserCourse from "../models/UserCourse";
+import Test from "../models/Test";
 import moment from "moment";
-import UserTest from "models/UserTest";
-import MailSender from "utils/MailSender";
+import UserTest from "../models/UserTest";
+import MailSender from "../utils/MailSender";
 
 @Service()
 export default class CourseService {

@@ -3,7 +3,6 @@ import { Service } from "typedi";
 import ExampleService from "../services/ExampleService";
 import {Response} from 'express'
 import { StatusCodes } from "http-status-codes";
-import { ExampleRequest } from "../dto/ExampleDto";
 
 @JsonController('/example')
 @Service()

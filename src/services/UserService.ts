@@ -1,20 +1,20 @@
 import UserRepository from "../repository/UserRepository";
 import { Service } from "typedi";
 import { BadRequestError, NotFoundError } from "routing-controllers";
-import User from "models/User";
-import Course from "models/Course";
-import Test from "models/Test";
-import Lesson from "models/Lesson";
+import User from "../models/User";
+import Course from "../models/Course";
+import Test from "../models/Test";
+import Lesson from "../models/Lesson";
 import PageRequest, { UserListParams } from "dto/PageDto";
 import { Op } from "sequelize";
-import Folder from "models/Folder";
-import Word from "models/Word";
-import UserTest from "models/UserTest";
+import Folder from "../models/Folder";
+import Word from "../models/Word";
+import UserTest from "../models/UserTest";
 import IUserCredential from "interfaces/IUserCredential";
-import UserUpdate from "dto/UserDto";
+import UserUpdate from "../dto/UserDto";
 import bcrypt from "bcrypt";
-import sequelize from "models";
-import MailSender from "utils/MailSender";
+import sequelize from "../models";
+import MailSender from "../utils/MailSender";
 
 @Service()
 export default class UserService {

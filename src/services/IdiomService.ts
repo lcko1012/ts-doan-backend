@@ -1,6 +1,6 @@
-import { IdiomDto } from "dto/WordDto";
-import Idiom from "models/Idiom";
-import WordKind from "models/WordKind";
+import { IdiomDto } from "../dto/WordDto";
+import Idiom from "../models/Idiom";
+import WordKind from "../models/WordKind";
 import { NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 

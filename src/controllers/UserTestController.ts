@@ -1,9 +1,9 @@
 import { Authorized, CurrentUser, Get, JsonController, Param, Params, QueryParams, Res } from "routing-controllers";
 import { Service } from "typedi";
 import {Response} from 'express'
-import IUserCredential from "interfaces/IUserCredential";
-import UserTestService from "services/UserTestService";
-import { UserTestRequestDto } from "dto/PageDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import UserTestService from "../services/UserTestService";
+import { UserTestRequestDto } from "../dto/PageDto";
 
 @JsonController('/user_test')
 @Service()

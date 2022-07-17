@@ -1,8 +1,8 @@
 import { Authorized, BadRequestError, Body, CurrentUser, Get, JsonController, Param, Post, QueryParam, Res } from "routing-controllers";
 import { Service } from "typedi";
 import {Response} from 'express'
-import UserCourseSerivice from "services/UserCourseService";
-import IUserCredential from "interfaces/IUserCredential";
+import UserCourseSerivice from "../services/UserCourseService";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @JsonController('/user_course')
 @Service()

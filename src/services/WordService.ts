@@ -1,26 +1,26 @@
 import { Service } from "typedi";
 import fs from "fs";
-import Word from "models/Word";
+import Word from "../models/Word";
 import WordRepository from "../repository/WordRepository";
-import PageRequest from "dto/PageDto";
+import PageRequest from "../dto/PageDto";
 import { CreateWordDto, UpdateWordDto, } from "../dto/WordDto";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import sequelize from "../models";
 import { Model, Op } from "sequelize";
-import Example from "models/Example";
-import Kind from "models/Kind";
-import Meaning from "models/Meaning";
-import Idiom from "models/Idiom";
-import WordKind from "models/WordKind";
+import Example from "../models/Example";
+import Kind from "../models/Kind";
+import Meaning from "../models/Meaning";
+import Idiom from "../models/Idiom";
+import WordKind from "../models/WordKind";
 import IUserCredential from "interfaces/IUserCredential";
-import Course from "models/Course";
-import Lesson from "models/Lesson";
+import Course from "../models/Course";
+import Lesson from "../models/Lesson";
 import LessonService from "./LessonService";
-import UserCourse from "models/UserCourse";
-import LessonWord from "models/LessonWord";
-import FolderWord from "models/FolderWord";
-import Folder from "models/Folder";
-import { KindType } from "interfaces/Word";
+import UserCourse from "../models/UserCourse";
+import LessonWord from "../models/LessonWord";
+import FolderWord from "../models/FolderWord";
+import Folder from "../models/Folder";
+import { KindType } from "../interfaces/Word";
 
 @Service()
 export default class WordService {

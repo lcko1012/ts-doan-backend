@@ -1,14 +1,14 @@
-import { FolderCreateingDto } from "dto/FolderDto";
-import IUserCredential from "interfaces/IUserCredential";
-import Example from "models/Example";
-import Folder from "models/Folder";
-import Kind from "models/Kind";
-import Meaning from "models/Meaning";
-import Word from "models/Word";
-import WordKind from "models/WordKind";
+import { FolderCreateingDto } from "../dto/FolderDto";
+import IUserCredential from "../interfaces/IUserCredential";
+import Example from "../models/Example";
+import Folder from "../models/Folder";
+import Kind from "../models/Kind";
+import Meaning from "../models/Meaning";
+import Word from "../models/Word";
+import WordKind from "../models/WordKind";
 import { NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
-import StringUtils from "utils/StringUtils";
+import StringUtils from "../utils/StringUtils";
 
 @Service()
 export default class FolderService {

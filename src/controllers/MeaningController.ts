@@ -1,7 +1,7 @@
-import { MeaningUpdateDto } from "dto/MeaningDto";
+import { MeaningUpdateDto } from "../dto/MeaningDto";
 import { Response } from "express";
 import { Body, Delete, Get, HttpCode, JsonController, Param, Post, Put, Res } from "routing-controllers";
-import MeaningService from "services/MeaningService";
+import MeaningService from "../services/MeaningService";
 import { Service } from "typedi";
 
 @JsonController('/meaning')

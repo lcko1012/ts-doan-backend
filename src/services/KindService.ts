@@ -1,7 +1,7 @@
-import Kind from "models/Kind";
-import Word from "models/Word";
-import WordKind from "models/WordKind";
-import WordRepository from "repository/WordRepository";
+import Kind from "../models/Kind";
+import Word from "../models/Word";
+import WordKind from "../models/WordKind";
+import WordRepository from "../repository/WordRepository";
 import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 

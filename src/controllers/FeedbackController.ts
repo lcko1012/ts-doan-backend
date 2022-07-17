@@ -1,9 +1,9 @@
 import { Authorized, BadRequestError, Body, BodyParam, CurrentUser, Get, JsonController, Param, Post, Res } from "routing-controllers";
 import { Service } from "typedi";
 import { Response } from 'express'
-import IUserCredential from "interfaces/IUserCredential";
-import { FeedbackDto } from "dto/FeedbackDto";
-import FeedbackService from "services/FeedbackService";
+import IUserCredential from "../interfaces/IUserCredential";
+import { FeedbackDto } from "../dto/FeedbackDto";
+import FeedbackService from "../services/FeedbackService";
 
 @JsonController('/feedback')
 @Service()
