@@ -173,18 +173,18 @@ export default class TestService {
         const details = questionSubmits.map(questionSubmit => {
             const question = questions.find(q => q.id === questionSubmit.questionId);
             if (!question) throw new NotFoundError('Câu hỏi không tồn tại')
-            var answer;
+            let correct;
             if (question.type === "TYPE_TEXT"){
                 const correctAnswer = question.answers.find(a => a.correct);
                 // compare answers correct and student submit, content of correct is spreaded by ,
-                answer = correctAnswer.content.split(',').some(content => content.toLowerCase() === questionSubmit.answerContent.toLowerCase());
+                correct = correctAnswer.content.split(',').some(content => content.toLowerCase() === questionSubmit.answerContent.toLowerCase());
             }
-            else answer = question.answers.every(a => questionSubmit.answerArray.includes(a.id));
+            else correct = question.answers.every(a => questionSubmit.answerArray.includes(a.id));
             return {
                 questionId: question.id,
                 answerSubumitId: questionSubmit.answerArray,
                 answerSubmitContent: questionSubmit.answerContent,
-                correct: answer ? answer.correct : false,
+                correct: correct,
                 question
             }
         })

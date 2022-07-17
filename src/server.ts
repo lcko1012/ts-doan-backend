@@ -32,7 +32,7 @@ const httpServer = require('http').Server(newApp);
 const io = Websocket.getInstance(httpServer);
 
 io.initializeHandlers([
-    { path: '/message', handler: new MessageSocket() }
+    { path: '/socket-server/message', handler: new MessageSocket() }
 ]);
 
 sequelize.sync().then(() => {

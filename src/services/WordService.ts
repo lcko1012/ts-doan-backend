@@ -30,7 +30,7 @@ export default class WordService {
     ) { }
 
     public async createDictionary() {
-        for (var stt = 92; stt <= 95; stt++){
+        for (var stt = 154; stt <= 156; stt++){
         fs.readFile(__dirname + `../../dictionary/dict_${stt}.json`, 'utf-8', async (err, data) => {
             if (err) {
                 console.log(err)
